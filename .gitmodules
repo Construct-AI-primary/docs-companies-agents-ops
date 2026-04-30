@@ -1,0 +1,3 @@
+[submodule "agent-companies-core"]
+	path = agent-companies-core
+	url = https://github.com/Construct-AI-primary/agent-companies-core.git
