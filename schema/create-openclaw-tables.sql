@@ -37,6 +37,7 @@ CREATE TABLE IF NOT EXISTS openclaw_agents (
 -- OpenClaw agent capabilities (many-to-many)
 CREATE TABLE IF NOT EXISTS openclaw_agent_capabilities (
     agent_id TEXT NOT NULL,
+    agent_name TEXT NOT NULL,
     capability TEXT NOT NULL,
     description TEXT,
     created_at TEXT NOT NULL DEFAULT (datetime('now')),
@@ -47,6 +48,7 @@ CREATE TABLE IF NOT EXISTS openclaw_agent_capabilities (
 -- Agent skill assignments
 CREATE TABLE IF NOT EXISTS openclaw_agent_skills (
     agent_id TEXT NOT NULL,
+    agent_name TEXT NOT NULL,
     skill_name TEXT NOT NULL,
     proficiency_level INTEGER DEFAULT 5,
     created_at TEXT NOT NULL DEFAULT (datetime('now')),
@@ -182,6 +184,7 @@ CREATE TABLE IF NOT EXISTS openclaw_models (
 CREATE TABLE IF NOT EXISTS openclaw_agent_models (
     id TEXT PRIMARY KEY,
     agent_id TEXT NOT NULL,
+    agent_name TEXT NOT NULL,
     model_id TEXT NOT NULL,
     priority INTEGER NOT NULL DEFAULT 0,
     max_budget_cents INTEGER,
@@ -238,6 +241,7 @@ CREATE TABLE IF NOT EXISTS openclaw_model_performance_log (
 CREATE TABLE IF NOT EXISTS openclaw_agent_sessions (
     id TEXT PRIMARY KEY,
     agent_id TEXT NOT NULL,
+    agent_name TEXT NOT NULL,
     task_id TEXT,
     session_type TEXT NOT NULL DEFAULT 'interactive',
     status TEXT NOT NULL DEFAULT 'active',
