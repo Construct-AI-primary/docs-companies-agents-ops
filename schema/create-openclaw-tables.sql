@@ -14,7 +14,12 @@ PRAGMA foreign_keys = ON;
 CREATE TABLE IF NOT EXISTS openclaw_agents (
     id TEXT PRIMARY KEY,
     name TEXT NOT NULL,
+    slug TEXT UNIQUE,
     role TEXT NOT NULL DEFAULT 'general',
+    reports_to TEXT,
+    description TEXT,
+    skills TEXT DEFAULT '[]',
+    company TEXT,
     status TEXT NOT NULL DEFAULT 'idle',
     adapter_type TEXT NOT NULL DEFAULT 'process',
     adapter_config TEXT DEFAULT '{}',
@@ -333,6 +338,9 @@ CREATE TABLE IF NOT EXISTS openclaw_api_keys (
 
 CREATE INDEX idx_openclaw_agents_status ON openclaw_agents(status);
 CREATE INDEX idx_openclaw_agents_role ON openclaw_agents(role);
+CREATE INDEX idx_openclaw_agents_slug ON openclaw_agents(slug);
+CREATE INDEX idx_openclaw_agents_reports_to ON openclaw_agents(reports_to);
+CREATE INDEX idx_openclaw_agents_company ON openclaw_agents(company);
 CREATE INDEX idx_openclaw_tasks_status ON openclaw_tasks(status);
 CREATE INDEX idx_openclaw_tasks_assignee ON openclaw_tasks(assignee_agent_id);
 CREATE INDEX idx_openclaw_tasks_workflow ON openclaw_tasks(workflow_id);
