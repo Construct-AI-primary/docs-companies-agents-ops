@@ -29,6 +29,23 @@ This document tracks execution status for projects across the Construct AI agent
 4. Agent executes using assigned skills from `skills/` directory
 5. Results flow back through heartbeat loop
 
+### Sub-Agent Spawning (Fixed)
+
+**Problem:** `openclaw agents add --non-interactive` is broken in versions 2026.4.21 and 2026.4.26 — the CLI parser treats `--non-interactive` and `--workspace` as positional arguments instead of flags. The Gateway REST API (`/api/agents`) does not exist on this version (dashboard-only).
+
+**Fix Applied (2026-05-04):** `spawnSubAgents()` in `scripts/bot.js` now creates agents by writing config files directly:
+1. Creates `~/.openclaw/agents/{name}/agent/` directory structure
+2. Writes `models.json` with DeepSeek provider config
+3. Writes `auth-profiles.json` with the appropriate API key (pro/flash)
+4. Writes `auth-state.json` (empty)
+5. Registers agent in `~/.openclaw/openclaw.json` under `agents.list`
+
+**DeepSeek API Keys Configured:**
+- `DEEPSEEK_PRO_API_KEY` — for complex issues (default)
+- `DEEPSEEK_FLASH_API_KEY` — for simpler issues (use `--flash` flag)
+
+**Verified:** Direct file creation works — test agent created and removed successfully.
+
 ### Dependency Resolution
 - Issues declare `depends_on` in frontmatter
 - Phases are sequential (Phase 1 → Phase 2 → Phase 3 → Phase 4 → Phase 5)
