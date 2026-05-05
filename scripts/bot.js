@@ -80,8 +80,8 @@ const SERVER_MAP = {
 // ============================================================
 // AGENT_REGISTRY — Maps agent slugs to display names and details
 // ============================================================
-// This registry contains agents used in ISSUE_CHANNELS.
-// Source: agent-companies-core/agent-companies-paperclip/docs-paperclip/companies/*/agents/ directories
+// Source: agent-companies-paperclip/docs-paperclip/companies/*/agents/ directories
+// Data from actual AGENTS.md files
 const AGENT_REGISTRY = {
   // DevForge AI agents
   'orion-devforge-orchestrator': { display: 'Orion (DevForge AI)', type: 'orchestrator', role: 'Orion Orchestrator', company: 'DevForge AI', reportsTo: 'nexus-devforge-ceo' },
@@ -120,106 +120,10 @@ const AGENT_REGISTRY = {
   
   // MeasureForge AI agents
   'measureforge-ai-measurement-specialist': { display: 'Measurement Specialist (MeasureForge AI)', type: 'measurement', role: 'Measurement Specialist', company: 'MeasureForge AI', reportsTo: 'ceo' },
-  'dataforge-devforge-data-transformation': { display: 'Dataforge Devforge Data (Devforge AI)', type: 'general', role: 'Dataforge Data Transformation' },
-  'dbat-testing-qualityforge': { display: 'Dbat Testing (Qualityforge AI)', type: 'testing', role: 'Dbat Testing' },
-  'dealmaker-devforge-sales-negotiation': { display: 'Dealmaker Devforge Sales (Devforge AI)', type: 'general', role: 'Dealmaker Sales Negotiation' },
-  'debugger-debugger-specialist': { display: 'Debugger Debugger (Qualityforge AI)', type: 'general', role: 'Debugger Debugger Specialist' },
-  'design-domainforge-design': { display: 'Design Domainforge (Domainforge AI)', type: 'design', role: 'Design Domainforge Design' },
-  'dev-loopy-technical-creative': { display: 'Dev Loopy Technical (Loopy AI)', type: 'general', role: 'Dev Technical Creative' },
-  'devcore-devforge-core-development': { display: 'Devcore Devforge Core (Devforge AI)', type: 'general', role: 'Devcore Core Development' },
-  'diagnostics-diagnostics-specialist': { display: 'Diagnostics Diagnostics (Qualityforge AI)', type: 'general', role: 'Diagnostics Diagnostics Specialist' },
-  'director-project-domainforge-director-project': { display: 'Director Project Domainforge Director (Domainforge AI)', type: 'general', role: 'Director Project Director Project' },
-  'directors-domainforge-directors': { display: 'Directors Domainforge (Domainforge AI)', type: 'general', role: 'Directors Domainforge Directors' },
-  'document-control-domainforge-document-control': { display: 'Document Control Domainforge Document (Domainforge AI)', type: 'general', role: 'Document Control Document Control' },
-  'documenter-qualityforge-documentation-specialist': { display: 'Documenter Qualityforge Documentation (Qualityforge AI)', type: 'testing', role: 'Documenter Documentation Specialist' },
-  'e2e-qualityforge-end-to-end-testing': { display: 'E2e Qualityforge End To End (Qualityforge AI)', type: 'testing', role: 'E2e End To End Testing' },
-  'electrical-engineering-domainforge-electrical-engineering': { display: 'Electrical Engineering Domainforge Electrical (Domainforge AI)', type: 'general', role: 'Electrical Engineering Electrical Engineering' },
-  'engineering-director-domainforge-engineering-director': { display: 'Engineering Director Domainforge Engineering (Domainforge AI)', type: 'general', role: 'Engineering Director Engineering Director' },
-  'enhancer-promptforge-advanced-innovation': { display: 'Enhancer Promptforge Advanced (Promptforge AI)', type: 'general', role: 'Enhancer Advanced Innovation' },
-  'environmental-domainforge-environmental': { display: 'Environmental Domainforge (Domainforge AI)', type: 'general', role: 'Environmental Environmental' },
-  'ethics-domainforge-ethics': { display: 'Ethics Domainforge (Domainforge AI)', type: 'general', role: 'Ethics Domainforge Ethics' },
-  'execforge-ai-automationengineer': { display: 'Execforge Ai (Execforge AI)', type: 'general', role: 'Execforge Ai Automationengineer' },
-  'execforge-ai-chiefofstaff': { display: 'Execforge Ai (Execforge AI)', type: 'general', role: 'Execforge Ai Chiefofstaff' },
-  'execforge-ai-communicationsmanager': { display: 'Execforge Ai (Execforge AI)', type: 'general', role: 'Execforge Ai Communicationsmanager' },
-  'execforge-ai-datamanager': { display: 'Execforge Ai (Execforge AI)', type: 'general', role: 'Execforge Ai Datamanager' },
-  'execforge-ai-intelligenceanalyst': { display: 'Execforge Ai (Execforge AI)', type: 'general', role: 'Execforge Ai Intelligenceanalyst' },
-  'execforge-ai-knowledgecurator': { display: 'Execforge Ai (Execforge AI)', type: 'general', role: 'Execforge Ai Knowledgecurator' },
-  'execforge-ai-performanceanalyst': { display: 'Execforge Ai (Execforge AI)', type: 'general', role: 'Execforge Ai Performanceanalyst' },
-  'execforge-ai-personalassistant': { display: 'Execforge Ai (Execforge AI)', type: 'general', role: 'Execforge Ai Personalassistant' },
-  'execforge-ai-presentationspecialis': { display: 'Execforge Ai (Execforge AI)', type: 'general', role: 'Execforge Ai Presentationspecialis' },
-  'execforge-ai-projectmanager': { display: 'Execforge Ai (Execforge AI)', type: 'general', role: 'Execforge Ai Projectmanager' },
-  'execforge-ai-strategicassistant': { display: 'Execforge Ai (Execforge AI)', type: 'general', role: 'Execforge Ai Strategicssistant' },
-  'execforge-ai-strategicplanner': { display: 'Execforge Ai (Execforge AI)', type: 'general', role: 'Execforge Ai Strategicsplanner' },
-  'execforge-ai-strategyconsultant': { display: 'Execforge Ai (Execforge AI)', type: 'general', role: 'Execforge Ai Strategyconsultant' },
-  'execforge-ai-taskcoordinator': { display: 'Execforge Ai (Execforge AI)', type: 'general', role: 'Execforge Ai Taskcoordinator' },
-  'execforge-ai-workfloworchestrator': { display: 'Execforge Ai (Execforge AI)', type: 'general', role: 'Execforge Ai Workfloworchestrator' },
-  'fixer-devforge-bug-fixing': { display: 'Fixer Devforge Bug (Devforge AI)', type: 'backend', role: 'Fixer Bug Fixing' },
-  'fixer-qualityforge-bug-fixing-specialist': { display: 'Fixer Qualityforge Bug (Qualityforge AI)', type: 'bugfix', role: 'Fixer Bug Fixing Specialist' },
-  'forge-devforge-system-architecture': { display: 'Forge Devforge System (Devforge AI)', type: 'architecture', role: 'Forge System Architecture Design' },
-  'gatekeeper-devforge-access-control': { display: 'Gatekeeper Devforge Access (Devforge AI)', type: 'security', role: 'Gatekeeper Access Control' },
-  'governor-qualityforge-quality-director': { display: 'Governer Qualityforge Quality (Qualityforge AI)', type: 'director', role: 'Governer Quality Director' },
-  'guardian-devforge-threat-protection': { display: 'Guardian Devforge Threat (Devforge AI)', type: 'security', role: 'Guardian Threat Protection' },
-  'infraforge-ai-databasemanager': { display: 'Infraforge Ai (Infraforge AI)', type: 'general', role: 'Infraforge Ai Databasemanager' },
-  'infraforge-ai-deploymentengineer': { display: 'Infraforge Ai (Infraforge AI)', type: 'general', role: 'Infraforge Ai Deploymentengineer' },
-  'infraforge-ai-infrastructureengineer': { display: 'Infraforge Ai (Infraforge AI)', type: 'general', role: 'Infraforge Ai Infrastructureengineer' },
-  'infraforge-ai-monitoringengineer': { display: 'Infraforge Ai (Infraforge AI)', type: 'general', role: 'Infraforge Ai Monitoringengineer' },
-  'infraforge-ai-securityengineer': { display: 'Infraforge Ai (Infraforge AI)', type: 'general', role: 'Infraforge Ai Securityengineer' },
-  'infraforge-ai-systemsadministrator': { display: 'Infraforge Ai (Infraforge AI)', type: 'general', role: 'Infraforge Ai Systemsadministrator' },
-  'insight-devforge-business-intelligence': { display: 'Insight Devforge Business (Devforge AI)', type: 'general', role: 'Insight Business Intelligence' },
-  'integrateforge-ai-integration-specialist': { display: 'Integrate Integrateforge (Integrateforge AI)', type: 'integration', role: 'Integrate Integrateforge Integration Specialist' },
-  'interface-devforge-api-integration': { display: 'Interface Devforge Api (Devforge AI)', type: 'integration', role: 'Interface Api Integration' },
-  'knowledgeforge-ai-analytics-specialist': { display: 'Analytics Knowledgeforge (Knowledgeforge AI)', type: 'analytics', role: 'Analytics Knowledgeforge Analytics Specialist' },
-  'knowledgeforge-ai-knowledgecurator': { display: 'Knowledgecurator Knowledgeforge (Knowledgeforge AI)', type: 'general', role: 'Knowledgecurator Knowledgeforge Knowledgecurator' },
-  'librarian-devforge-knowledge-management': { display: 'Librarian Devforge Knowledge (Devforge AI)', type: 'general', role: 'Librarian Knowledge Management' },
-  'loopy-ai-deepresearch': { display: 'Loopy Ai (Loopy AI)', type: 'general', role: 'Loopy Ai Deepresearch' },
-  'loopy-ai-technicalcreative': { display: 'Loopy Ai (Loopy AI)', type: 'general', role: 'Loopy Ai Technicalcreative' },
-  'measureforge-ai-cadintegration': { display: 'Measureforge Ai (Measureforge AI)', type: 'general', role: 'Measureforge Ai Cadintegration' },
-  'measureforge-ai-civilengineering': { display: 'Measureforge Ai (Measureforge AI)', type: 'general', role: 'Measureforge Ai Civilengineering' },
-  'measureforge-ai-elementmeasurement': { display: 'Measureforge Ai (Measureforge AI)', type: 'general', role: 'Measureforge Ai Elementmeasurement' },
-  'measureforge-ai-measurement-specialist': { display: 'Measurement Measureforge (Measureforge AI)', type: 'measurement', role: 'Measurement Measureforge Measurement Specialist' },
-  'measureforge-ai-postaward': { display: 'Measureforge Ai (Measureforge AI)', type: 'general', role: 'Measureforge Ai Postaward' },
-  'measureforge-ai-preaward': { display: 'Measureforge Ai (Measureforge AI)', type: 'general', role: 'Measureforge Ai Preaward' },
-  'measureforge-ai-standardscompliance': { display: 'Measureforge Ai (Measureforge AI)', type: 'general', role: 'Measureforge Ai Standardscompliance' },
-  'measureforge-ai-visualintelligence': { display: 'Measureforge Ai (Measureforge AI)', type: 'general', role: 'Measureforge Ai Visualintelligence' },
-  'mentor-devforge-team-development': { display: 'Mentor Devforge Team (Devforge AI)', type: 'general', role: 'Mentor Team Development' },
-  'merchant-devforge-commerce-operations': { display: 'Merchant Devforge Commerce (Devforge AI)', type: 'general', role: 'Merchant Commerce Operations' },
-  'mobileforge-ai-mobile-specialist': { display: 'Mobile Mobileforge (Mobileforge AI)', type: 'mobile', role: 'Mobile Mobileforge Mobile Specialist' },
-  'navigator-devforge-data-discovery': { display: 'Navigator Devforge Data (Devforge AI)', type: 'general', role: 'Navigator Data Discovery' },
-  'nexus-devforge-ceo': { display: 'Nexus Devforge Ceo (Devforge AI)', type: 'ceo', role: 'Nexus Ceo Strategic Direction' },
-  'nimbus-infraforge-supabase-specialist': { display: 'Nimbus Infraforge Supabase (Infraforge AI)', type: 'database', role: 'Nimbus Supabase Specialist' },
-  'nova-devforge-product-launches': { display: 'Nova Devforge Product (Devforge AI)', type: 'general', role: 'Nova Product Launches' },
-  'openclawforge-ai-orchestrator': { display: 'Openclawforge Ai (Openclawforge AI)', type: 'general', role: 'Openclawforge Ai Orchestrator' },
-  'oracle-devforge-predictive-analytics': { display: 'Oracle Devforge Predictive (Devforge AI)', type: 'general', role: 'Oracle Predictive Analytics' },
-  'orion-devforge-orchestrator': { display: 'Orion Devforge Orchestrator (Devforge AI)', type: 'orchestrator', role: 'Orion Orchestrator Coordination' },
-  'orion-domainforge-ceo': { display: 'Orion Domainforge Ceo (Domainforge AI)', type: 'ceo', role: 'Orion Ceo Strategic Direction' },
-  'orchestrator-infraforge-ceo': { display: 'Orchestrator Infraforge Ceo (Infraforge AI)', type: 'ceo', role: 'Orchestrator Ceo Orchestration' },
-  'paperclipforge-ai-automation-specialist': { display: 'Automation Paperclipforge (Paperclipforge AI)', type: 'automation', role: 'Automation Paperclipforge Automation Specialist' },
-  'pathfinder-devforge-opportunity-identification': { display: 'Pathfinder Devforge Opportinity (Devforge AI)', type: 'general', role: 'Pathfinder Opportinity Identification' },
-  'postgres-infraforge-postgresql': { display: 'Postgres Infraforge Postgresql (Infraforge AI)', type: 'database', role: 'Postgres Postgresql Management' },
-  'principle-domainforge-principle': { display: 'Principle Domainforge (Domainforge AI)', type: 'general', role: 'Principle Domainforge Principle' },
-  'promptsmith-devforge-prompt-engineering': { display: 'PromptSmith Devforge Prompt (Devforge AI)', type: 'prompt', role: 'PromptSmith Prompt Engineering' },
-  'pulse-devforge-realtime-monitoring': { display: 'Pulse Devforge Realtime (Devforge AI)', type: 'general', role: 'Pulse Realtime Monitoring' },
-  'render-deployment-infraforge-specialist': { display: 'Render Infraforge Deployment (Infraforge AI)', type: 'deployment', role: 'Render Deployment Infrastructure' },
-  'reviewer-devforge-code-review-qa': { display: 'Reviewer Devforge Code (Devforge AI)', type: 'qa', role: 'Reviewer Code Review Qa' },
-  'reviewer-qualityforge-code-reviewer': { display: 'Reviewer Qualityforge Code (Qualityforge AI)', type: 'qa', role: 'Reviewer Code Reviewer' },
-  'saasforge-ai-saas-specialist': { display: 'Saas Saasforge (Saasforge AI)', type: 'saas', role: 'Saas Saasforge Saas Specialist' },
-  'schema-devforge-data-schema-management': { display: 'Schema Devforge Data (Devforge AI)', type: 'general', role: 'Schema Data Schema Management' },
-  'scout-devforge-competitive-intelligence': { display: 'Scout Devforge Competitive (Devforge AI)', type: 'general', role: 'Scout Competitive Intelligence' },
-  'sentinel-devforge-data-quality-monitoring': { display: 'Sentinel Devforge Data (Devforge AI)', type: 'monitoring', role: 'Sentinel Data Quality Monitoring' },
-  'sentinelx-devforge-advanced-monitoring': { display: 'Sentinelx Devforge Advanced (Devforge AI)', type: 'monitoring', role: 'Sentinelx Advanced Monitoring' },
-  'sql-query-devforge': { display: 'Sql Query Devforge (Devforge AI)', type: 'database', role: 'Sql Query Devforge' },
-  'storycraft-devforge-product-storytelling': { display: 'Storycraft Devforge Product (Devforge AI)', type: 'general', role: 'Storycraft Product Storytelling' },
-  'strategos-devforge-strategic-planning': { display: 'Strategos Devforge Strategic (Devforge AI)', type: 'general', role: 'Strategos Strategic Planning' },
-  'stream-devforge-data-streaming': { display: 'Stream Devforge Data (Devforge AI)', type: 'general', role: 'Stream Data Streaming' },
-  'synth-synthetic-data': { display: 'Synth Devforge Synthetic (Devforge AI)', type: 'general', role: 'Synth Synthetic Data' },
-  'vector-vector-processing': { display: 'Vector Devforge Vector (Devforge AI)', type: 'general', role: 'Vector Vector Processing' },
-  'voiceforge-ai-voice-specialist': { display: 'Voice Specialist Voiceforge (Voiceforge AI)', type: 'voice', role: 'Voice Specialist Voice Interfaces' },
-  'voyager-devforge-market-exploration': { display: 'Voyager Devforge Market (Devforge AI)', type: 'general', role: 'Voyager Market Exploration' },
-  'watchtower-devforge-security-oversight': { display: 'Watchtower Devforge Security (Devforge AI)', type: 'security', role: 'Watchtower Security Oversight' },
 };
 
 // ============================================================
-// ISSUE CHANNEL REGISTRY — Hardcoded with agent assignments (using agentSlug)
+// ISSUE_CHANNELS — Hardcoded with agent assignments (using agentSlug)
 // ============================================================
 const ISSUE_CHANNELS = {
   // VOICE-COMM
@@ -349,7 +253,7 @@ const ISSUE_CHANNELS = {
   '1500135158739898399': { server: 'ENGINEERING', name: 'paperclipforge-eng-auto', agentSlug: 'paperclipforge-ai-automation-specialist', purpose: 'ENG-AUTO-000' },
   '1500135161302351922': { server: 'ENGINEERING', name: 'devforge-eng-platform', agentSlug: 'orion-devforge-orchestrator', purpose: 'ENG-PLATFORM-000' },
   '1500135162804043838': { server: 'ENGINEERING', name: 'voiceforge-eng-voice', agentSlug: 'voiceforge-ai-voice-specialist', purpose: 'ENG-VOICE' },
-  // ALL-DISCIPLINES
+  // ALL-DISCIPLINES — PROD-TEST issues
   '1500135909285433435': { server: 'ALL-DISCIPLINES', name: 'domainforge-design-workflow', agentSlug: 'design-domainforge-design', purpose: 'DESIGN-WORKFLOW' },
   '1500135911361347727': { server: 'ALL-DISCIPLINES', name: 'voiceforge-arch-voice', agentSlug: 'voiceforge-ai-voice-specialist', purpose: 'ARCH-VOICE' },
   '1500135913219424421': { server: 'ALL-DISCIPLINES', name: 'domainforge-architectural-workflow', agentSlug: 'design-domainforge-design', purpose: 'ARCHITECTURAL-WORKFLOW' },
@@ -372,7 +276,23 @@ const ISSUE_CHANNELS = {
   '1500135950422904852': { server: 'ALL-DISCIPLINES', name: 'domainforge-sundry-workflow', agentSlug: 'design-domainforge-design', purpose: 'SUNDRY-WORKFLOW' },
   '1500135953304653944': { server: 'ALL-DISCIPLINES', name: 'saasforge-saas-prod-prep', agentSlug: 'saasforge-ai-saas-specialist', purpose: 'SAAS-PROD-PREP' },
   '1500135955460395252': { server: 'ALL-DISCIPLINES', name: 'mobileforge-mobile-test', agentSlug: 'mobileforge-ai-mobile-specialist', purpose: 'MOBILE-TEST' },
-  '1500135958111064154': { server: 'ALL-DISCIPLINES', name: 'qualityforge-prod-test', agentSlug: 'governor-qualityforge-quality-director', purpose: 'PROD-TEST' }
+  '1500135958111064154': { server: 'ALL-DISCIPLINES', name: 'qualityforge-prod-test', agentSlug: 'governor-qualityforge-quality-director', purpose: 'PROD-TEST' },
+  // PROD-TEST issue channels (ALL-DISCIPLINES server) — created 2026-05-05
+  '1501118691897774100': { server: 'ALL-DISCIPLINES', name: 'devforge-prod-tier1', agentSlug: 'devcore-devforge-core-development', purpose: 'PROD-001' },
+  '1501118694359695441': { server: 'ALL-DISCIPLINES', name: 'devforge-prod-login', agentSlug: 'devcore-devforge-core-development', purpose: 'PROD-002' },
+  '1501118696998047784': { server: 'ALL-DISCIPLINES', name: 'devforge-prod-user-creation', agentSlug: 'devcore-devforge-core-development', purpose: 'PROD-003' },
+  '1501118699212636211': { server: 'ALL-DISCIPLINES', name: 'devforge-prod-database-upsert', agentSlug: 'devcore-devforge-core-development', purpose: 'PROD-004' },
+  '1501118703885090976': { server: 'ALL-DISCIPLINES', name: 'devforge-prod-accordion', agentSlug: 'devcore-devforge-core-development', purpose: 'PROD-005' },
+  '1501118706015670303': { server: 'ALL-DISCIPLINES', name: 'devforge-prod-environment', agentSlug: 'devcore-devforge-core-development', purpose: 'PROD-006' },
+  '1501118708184256684': { server: 'ALL-DISCIPLINES', name: 'devforge-prod-tier2', agentSlug: 'devcore-devforge-core-development', purpose: 'PROD-007' },
+  '1501118710507634808': { server: 'ALL-DISCIPLINES', name: 'devforge-prod-ui-settings', agentSlug: 'devcore-devforge-core-development', purpose: 'PROD-008' },
+  '1501118712793665626': { server: 'ALL-DISCIPLINES', name: 'devforge-prod-non-discipline', agentSlug: 'devcore-devforge-core-development', purpose: 'PROD-009' },
+  '1501118715373031648': { server: 'ALL-DISCIPLINES', name: 'devforge-prod-discipline', agentSlug: 'devcore-devforge-core-development', purpose: 'PROD-010' },
+  '1501118718296592464': { server: 'ALL-DISCIPLINES', name: 'devforge-prod-tier3', agentSlug: 'devcore-devforge-core-development', purpose: 'PROD-011' },
+  '1501118721408765954': { server: 'ALL-DISCIPLINES', name: 'devforge-prod-chatbot', agentSlug: 'devcore-devforge-core-development', purpose: 'PROD-012' },
+  '1501118724147515446': { server: 'ALL-DISCIPLINES', name: 'devforge-prod-tier4', agentSlug: 'devcore-devforge-core-development', purpose: 'PROD-013' },
+  '1501118726840254626': { server: 'ALL-DISCIPLINES', name: 'devforge-prod-hitl', agentSlug: 'devcore-devforge-core-development', purpose: 'PROD-014' },
+  '1501118729709420565': { server: 'ALL-DISCIPLINES', name: 'devforge-prod-hitl-workflow', agentSlug: 'devcore-devforge-core-development', purpose: 'PROD-HITL' }
 };
 
 // ============================================================
@@ -389,9 +309,13 @@ function buildChannelMap(client) {
     // Resolve agent display name from AGENT_REGISTRY if agentSlug is set
     let agentDisplay = info.agent; // fallback to raw agent if no slug
     let agentRole = '';
-    if (info.agentSlug && AGENT_REGISTRY[info.agentSlug]) {
-      agentDisplay = AGENT_REGISTRY[info.agentSlug].display;
-      agentRole = AGENT_REGISTRY[info.agentSlug].role;
+    let agentSlug = info.agentSlug || null;
+    
+    if (agentSlug && AGENT_REGISTRY[agentSlug]) {
+      agentDisplay = AGENT_REGISTRY[agentSlug].display;
+      agentRole = AGENT_REGISTRY[agentSlug].role;
+    } else if (info.agent) {
+      agentDisplay = info.agent;
     }
     
     map[id] = { 
@@ -399,7 +323,8 @@ function buildChannelMap(client) {
       type: 'issue', 
       reply_mode: 'cross-ref',
       agentDisplay,
-      agentRole
+      agentRole,
+      agentSlug
     };
   }
 
@@ -505,526 +430,20 @@ function openclawApiRequest(endpoint, method, body) {
   });
 }
 
-const { execSync } = require('child_process');
-const fs = require('fs');
-const path = require('path');
-
-// Agent config templates for direct file creation (bypasses broken CLI)
-const AGENT_MODELS_TEMPLATE = {
-  "providers": {
-    "deepseek": {
-      "baseUrl": "https://api.deepseek.com",
-      "api": "openai",
-      "models": [
-        {
-          "id": "deepseek-v4-pro",
-          "name": "DeepSeek V4 Pro",
-          "reasoning": true,
-          "input": ["text"],
-          "cost": { "input": 2, "output": 8, "cacheRead": 0.5, "cacheWrite": 0 },
-          "contextWindow": 131072,
-          "maxTokens": 8192,
-          "api": "openai"
-        },
-        {
-          "id": "deepseek-v4-flash",
-          "name": "DeepSeek V4 Flash",
-          "reasoning": false,
-          "input": ["text"],
-          "cost": { "input": 0.3, "output": 1.5, "cacheRead": 0.075, "cacheWrite": 0 },
-          "contextWindow": 131072,
-          "maxTokens": 8192,
-          "api": "openai"
-        }
-      ]
-    }
-  }
-};
-
-const AGENT_AUTH_TEMPLATE = {
-  "version": 1,
-  "profiles": {}
-};
-
-const OPENCLAW_HOME = process.env.OPENCLAW_HOME || '/root/.openclaw';
-const SUB_AGENT_WORKSPACE_BASE = process.env.SUB_AGENT_WORKSPACE_BASE || '/opt/openclaw/workspace/sub-agents';
-
-// ============================================================
-// ISSUE-TO-AGENT DISPATCH MAP
-// Maps each issue ID to its assigned agent, company, and task payload
-// ============================================================
-const ISSUE_DISPATCH_MAP = {
-  // PROCURE-TEST (01900 Procurement)
-  'PROCURE-001': { agent: 'DevForge AI', company: 'devforge-ai', phase: '1 — Foundation', discipline: '01900', task: 'Verify auth flow, page load, nav container, state buttons, logout' },
-  'PROCURE-002': { agent: 'InfraForge AI', company: 'infraforge-ai', phase: '1 — Foundation', discipline: '01900', task: 'Database tables, schema validation, data integrity' },
-  'PROCURE-003': { agent: 'DevForge AI', company: 'devforge-ai', phase: '2 — State/Modals', discipline: '01900', task: 'Agents state management, modal rendering' },
-  'PROCURE-004': { agent: 'DevForge AI', company: 'devforge-ai', phase: '2 — State/Modals', discipline: '01900', task: 'Upserts state management, CRUD operations' },
-  'PROCURE-005': { agent: 'DevForge AI', company: 'devforge-ai', phase: '2 — State/Modals', discipline: '01900', task: 'Workspace state, environment switching' },
-  'PROCURE-006': { agent: 'DevForge AI', company: 'devforge-ai', phase: '3 — Integration', discipline: '01900', task: 'Chatbot integration, response validation' },
-  'PROCURE-007': { agent: 'DomainForge AI', company: 'domainforge-ai', phase: '3 — Integration', discipline: '01900', task: 'Workflow execution, template rendering' },
-  'PROCURE-008': { agent: 'DomainForge AI', company: 'domainforge-ai', phase: '3 — Integration', discipline: '01900', task: 'Template rendering, document generation' },
-  'PROCURE-009': { agent: 'DomainForge AI', company: 'domainforge-ai', phase: '4 — Advanced', discipline: '01900', task: 'Supplier management, vendor CRUD' },
-  'PROCURE-010': { agent: 'DomainForge AI', company: 'domainforge-ai', phase: '4 — Advanced', discipline: '01900', task: 'Tender management, bid processing' },
-  'PROCURE-011': { agent: 'InfraForge AI', company: 'infraforge-ai', phase: '4 — Advanced', discipline: '01900', task: 'Integration testing, external API config' },
-  'PROCURE-012': { agent: 'DevForge AI', company: 'devforge-ai', phase: '5 — Compliance', discipline: '01900', task: 'Compliance testing, governance rules' },
-  'PROCURE-013': { agent: 'DevForge AI', company: 'devforge-ai', phase: '5 — Compliance', discipline: '01900', task: 'Delegation workflow, approval chains' },
-  'PROCURE-014': { agent: 'DevForge AI', company: 'devforge-ai', phase: '5 — Compliance', discipline: '01900', task: 'Feedback loop, sign-off process' },
-  'PROCURE-015': { agent: 'QualityForge AI', company: 'qualityforge-ai', phase: '5 — Compliance', discipline: '01900', task: 'Regression testing, subcontract RFQ' },
-  'PROCURE-016': { agent: 'QualityForge AI', company: 'qualityforge-ai', phase: '5 — Compliance', discipline: '01900', task: 'Full regression suite, HITL verification' },
-
-  // LOGISTICS (01700)
-  'LOGISTICS-001': { agent: 'DomainForge AI', company: 'domainforge-ai', phase: '1 — Foundation', discipline: '01700', task: 'Page foundation — auth, nav, state buttons, logout' },
-  'LOGISTICS-002': { agent: 'InfraForge AI', company: 'infraforge-ai', phase: '1 — Foundation', discipline: '01700', task: 'Database tables, schema validation' },
-  'LOGISTICS-003': { agent: 'DevForge AI', company: 'devforge-ai', phase: '2 — State/Modals', discipline: '01700', task: 'Agents state management' },
-  'LOGISTICS-004': { agent: 'DevForge AI', company: 'devforge-ai', phase: '2 — State/Modals', discipline: '01700', task: 'Upserts state management' },
-  'LOGISTICS-005': { agent: 'DevForge AI', company: 'devforge-ai', phase: '2 — State/Modals', discipline: '01700', task: 'Workspace state' },
-  'LOGISTICS-006': { agent: 'DevForge AI', company: 'devforge-ai', phase: '3 — Integration', discipline: '01700', task: 'Chatbot integration' },
-  'LOGISTICS-007': { agent: 'DomainForge AI', company: 'domainforge-ai', phase: '3 — Integration', discipline: '01700', task: 'Workflow execution' },
-  'LOGISTICS-008': { agent: 'DomainForge AI', company: 'domainforge-ai', phase: '3 — Integration', discipline: '01700', task: 'Template rendering' },
-  'LOGISTICS-009': { agent: 'DomainForge AI', company: 'domainforge-ai', phase: '4 — Advanced', discipline: '01700', task: 'Supplier management' },
-  'LOGISTICS-010': { agent: 'DomainForge AI', company: 'domainforge-ai', phase: '4 — Advanced', discipline: '01700', task: 'Tender management' },
-  'LOGISTICS-011': { agent: 'InfraForge AI', company: 'infraforge-ai', phase: '4 — Advanced', discipline: '01700', task: 'Integration testing' },
-  'LOGISTICS-012': { agent: 'DevForge AI', company: 'devforge-ai', phase: '5 — Compliance', discipline: '01700', task: 'Compliance testing' },
-  'LOGISTICS-013': { agent: 'DevForge AI', company: 'devforge-ai', phase: '5 — Compliance', discipline: '01700', task: 'Delegation workflow' },
-  'LOGISTICS-014': { agent: 'DevForge AI', company: 'devforge-ai', phase: '5 — Compliance', discipline: '01700', task: 'Feedback loop' },
-  'LOGISTICS-015': { agent: 'DevForge AI', company: 'devforge-ai', phase: '5 — Compliance', discipline: '01700', task: 'Sign-off testing' },
-  'LOGISTICS-016': { agent: 'QualityForge AI', company: 'qualityforge-ai', phase: '5 — Compliance', discipline: '01700', task: 'Regression testing' },
-
-  // ELEC-TEST (00860 Electrical Engineering)
-  'ELEC-TEST-001': { agent: 'DevForge AI', company: 'devforge-ai', phase: '1 — Foundation', discipline: '00860', task: 'Page foundation — auth, nav, state buttons, logout' },
-  'ELEC-TEST-002': { agent: 'InfraForge AI', company: 'infraforge-ai', phase: '1 — Foundation', discipline: '00860', task: 'Database tables, schema validation' },
-  'ELEC-TEST-003': { agent: 'DevForge AI', company: 'devforge-ai', phase: '2 — State/Modals', discipline: '00860', task: 'Agents state management' },
-  'ELEC-TEST-004': { agent: 'DevForge AI', company: 'devforge-ai', phase: '2 — State/Modals', discipline: '00860', task: 'Upserts state management' },
-  'ELEC-TEST-005': { agent: 'DevForge AI', company: 'devforge-ai', phase: '2 — State/Modals', discipline: '00860', task: 'Workspace state' },
-  'ELEC-TEST-006': { agent: 'DevForge AI', company: 'devforge-ai', phase: '3 — Integration', discipline: '00860', task: 'Chatbot integration' },
-  'ELEC-TEST-007': { agent: 'DomainForge AI', company: 'domainforge-ai', phase: '3 — Integration', discipline: '00860', task: 'Workflow execution' },
-  'ELEC-TEST-008': { agent: 'DomainForge AI', company: 'domainforge-ai', phase: '3 — Integration', discipline: '00860', task: 'Template rendering' },
-  'ELEC-TEST-009': { agent: 'DomainForge AI', company: 'domainforge-ai', phase: '4 — Advanced', discipline: '00860', task: 'Supplier management' },
-  'ELEC-TEST-010': { agent: 'DomainForge AI', company: 'domainforge-ai', phase: '4 — Advanced', discipline: '00860', task: 'Tender management' },
-  'ELEC-TEST-011': { agent: 'InfraForge AI', company: 'infraforge-ai', phase: '4 — Advanced', discipline: '00860', task: 'Integration testing' },
-  'ELEC-TEST-012': { agent: 'DevForge AI', company: 'devforge-ai', phase: '5 — Compliance', discipline: '00860', task: 'Compliance testing' },
-  'ELEC-TEST-013': { agent: 'DevForge AI', company: 'devforge-ai', phase: '5 — Compliance', discipline: '00860', task: 'Delegation workflow' },
-  'ELEC-TEST-014': { agent: 'DevForge AI', company: 'devforge-ai', phase: '5 — Compliance', discipline: '00860', task: 'Feedback loop' },
-  'ELEC-TEST-015': { agent: 'DevForge AI', company: 'devforge-ai', phase: '5 — Compliance', discipline: '00860', task: 'Sign-off testing' },
-  'ELEC-TEST-016': { agent: 'QualityForge AI', company: 'qualityforge-ai', phase: '5 — Compliance', discipline: '00860', task: 'Regression testing' },
-
-  // QS-TEST (02025 Quantity Surveying)
-  'QS-TEST-001': { agent: 'DevForge AI', company: 'devforge-ai', phase: '1 — Foundation', discipline: '02025', task: 'Page foundation — auth, nav, state buttons, logout' },
-  'QS-TEST-002': { agent: 'InfraForge AI', company: 'infraforge-ai', phase: '1 — Foundation', discipline: '02025', task: 'Database tables, schema validation' },
-  'QS-TEST-003': { agent: 'DevForge AI', company: 'devforge-ai', phase: '2 — State/Modals', discipline: '02025', task: 'Agents state management' },
-  'QS-TEST-004': { agent: 'DevForge AI', company: 'devforge-ai', phase: '2 — State/Modals', discipline: '02025', task: 'Upserts state management' },
-  'QS-TEST-005': { agent: 'DevForge AI', company: 'devforge-ai', phase: '2 — State/Modals', discipline: '02025', task: 'Workspace state' },
-  'QS-TEST-006': { agent: 'DevForge AI', company: 'devforge-ai', phase: '3 — Integration', discipline: '02025', task: 'Chatbot integration' },
-  'QS-TEST-007': { agent: 'DomainForge AI', company: 'domainforge-ai', phase: '3 — Integration', discipline: '02025', task: 'Workflow execution' },
-  'QS-TEST-008': { agent: 'DomainForge AI', company: 'domainforge-ai', phase: '3 — Integration', discipline: '02025', task: 'Template rendering' },
-  'QS-TEST-009': { agent: 'DomainForge AI', company: 'domainforge-ai', phase: '4 — Advanced', discipline: '02025', task: 'Supplier management' },
-  'QS-TEST-010': { agent: 'DomainForge AI', company: 'domainforge-ai', phase: '4 — Advanced', discipline: '02025', task: 'Tender management' },
-  'QS-TEST-011': { agent: 'InfraForge AI', company: 'infraforge-ai', phase: '4 — Advanced', discipline: '02025', task: 'Integration testing' },
-  'QS-TEST-012': { agent: 'DevForge AI', company: 'devforge-ai', phase: '5 — Compliance', discipline: '02025', task: 'Compliance testing' },
-  'QS-TEST-013': { agent: 'DevForge AI', company: 'devforge-ai', phase: '5 — Compliance', discipline: '02025', task: 'Delegation workflow' },
-  'QS-TEST-014': { agent: 'DevForge AI', company: 'devforge-ai', phase: '5 — Compliance', discipline: '02025', task: 'Feedback loop' },
-  'QS-TEST-015': { agent: 'DevForge AI', company: 'devforge-ai', phase: '5 — Compliance', discipline: '02025', task: 'Sign-off testing' },
-  'QS-TEST-016': { agent: 'QualityForge AI', company: 'qualityforge-ai', phase: '5 — Compliance', discipline: '02025', task: 'Regression testing' },
-
-  // LOGIS-TEST (01700 Logistics)
-  'LOGIS-TEST-001': { agent: 'DevForge AI', company: 'devforge-ai', phase: '1 — Foundation', discipline: '01700', task: 'Page foundation — auth, nav, state buttons, logout' },
-  'LOGIS-TEST-002': { agent: 'InfraForge AI', company: 'infraforge-ai', phase: '1 — Foundation', discipline: '01700', task: 'Database tables, schema validation' },
-  'LOGIS-TEST-003': { agent: 'DevForge AI', company: 'devforge-ai', phase: '2 — State/Modals', discipline: '01700', task: 'Agents state management' },
-  'LOGIS-TEST-004': { agent: 'DevForge AI', company: 'devforge-ai', phase: '2 — State/Modals', discipline: '01700', task: 'Upserts state management' },
-  'LOGIS-TEST-005': { agent: 'DevForge AI', company: 'devforge-ai', phase: '2 — State/Modals', discipline: '01700', task: 'Workspace state' },
-  'LOGIS-TEST-006': { agent: 'DevForge AI', company: 'devforge-ai', phase: '3 — Integration', discipline: '01700', task: 'Chatbot integration' },
-  'LOGIS-TEST-007': { agent: 'DomainForge AI', company: 'domainforge-ai', phase: '3 — Integration', discipline: '01700', task: 'Workflow execution' },
-  'LOGIS-TEST-008': { agent: 'DomainForge AI', company: 'domainforge-ai', phase: '3 — Integration', discipline: '01700', task: 'Template rendering' },
-  'LOGIS-TEST-009': { agent: 'DomainForge AI', company: 'domainforge-ai', phase: '4 — Advanced', discipline: '01700', task: 'Supplier management' },
-  'LOGIS-TEST-010': { agent: 'DomainForge AI', company: 'domainforge-ai', phase: '4 — Advanced', discipline: '01700', task: 'Tender management' },
-  'LOGIS-TEST-011': { agent: 'InfraForge AI', company: 'infraforge-ai', phase: '4 — Advanced', discipline: '01700', task: 'Integration testing' },
-  'LOGIS-TEST-012': { agent: 'DevForge AI', company: 'devforge-ai', phase: '5 — Compliance', discipline: '01700', task: 'Compliance testing' },
-  'LOGIS-TEST-013': { agent: 'DevForge AI', company: 'devforge-ai', phase: '5 — Compliance', discipline: '01700', task: 'Delegation workflow' },
-  'LOGIS-TEST-014': { agent: 'DevForge AI', company: 'devforge-ai', phase: '5 — Compliance', discipline: '01700', task: 'Feedback loop' },
-  'LOGIS-TEST-015': { agent: 'DevForge AI', company: 'devforge-ai', phase: '5 — Compliance', discipline: '01700', task: 'Sign-off testing' },
-  'LOGIS-TEST-016': { agent: 'QualityForge AI', company: 'qualityforge-ai', phase: '5 — Compliance', discipline: '01700', task: 'Regression testing' },
-
-  // SAFETY (02400)
-  'SAFETY-CONTRACTOR': { agent: 'DevForge AI', company: 'devforge-ai', phase: '1 — Foundation', discipline: '02400', task: 'Contractor management, compliance checks' },
-  'SAFETY-EMERGENCY': { agent: 'DevForge AI', company: 'devforge-ai', phase: '2 — State/Modals', discipline: '02400', task: 'Emergency response workflow' },
-  'SAFETY-HAZARD': { agent: 'DevForge AI', company: 'devforge-ai', phase: '3 — Integration', discipline: '02400', task: 'Hazard reporting, risk assessment' },
-  'SAFETY-HEALTH': { agent: 'DevForge AI', company: 'devforge-ai', phase: '3 — Integration', discipline: '02400', task: 'Health monitoring, medical records' },
-  'SAFETY-INCIDENT': { agent: 'DevForge AI', company: 'devforge-ai', phase: '4 — Advanced', discipline: '02400', task: 'Incident reporting, investigation' },
-  'SAFETY-INSPECTION': { agent: 'DevForge AI', company: 'devforge-ai', phase: '4 — Advanced', discipline: '02400', task: 'Inspection scheduling, checklists' },
-  'SAFETY-PPE': { agent: 'DevForge AI', company: 'devforge-ai', phase: '4 — Advanced', discipline: '02400', task: 'PPE tracking, inventory management' },
-  'SAFETY-TRAINING': { agent: 'DevForge AI', company: 'devforge-ai', phase: '5 — Compliance', discipline: '02400', task: 'Training records, certification tracking' },
-  'SAFETY-RESEARCH-ENHANCEMENT': { agent: 'KnowledgeForge AI', company: 'knowledgeforge-ai', phase: '5 — Compliance', discipline: '02400', task: 'Safety research, regulatory updates' },
-  'SAFE-VOICE': { agent: 'VoiceForge AI', company: 'voiceforge-ai', phase: '3 — Integration', discipline: '02400', task: 'Voice interface for safety reporting' },
-
-  // PROCUREMENT-BIDDING (00400/00425/00435)
-  'BTND-PLATFORM': { agent: 'DevForge AI', company: 'devforge-ai', phase: '1 — Foundation', discipline: '00400', task: 'Bidding platform foundation' },
-  'PROC-001': { agent: 'PaperclipForge AI', company: 'paperclipforge-ai', phase: '1 — Foundation', discipline: '00400', task: 'Procurement process automation' },
-  'PROC-AMEND': { agent: 'PaperclipForge AI', company: 'paperclipforge-ai', phase: '2 — State/Modals', discipline: '00425', task: 'Amendment processing' },
-  'PROC-ANALYTICS': { agent: 'KnowledgeForge AI', company: 'knowledgeforge-ai', phase: '3 — Integration', discipline: '00400', task: 'Procurement analytics' },
-  'PROC-AUDIT': { agent: 'QualityForge AI', company: 'qualityforge-ai', phase: '5 — Compliance', discipline: '00400', task: 'Procurement audit trail' },
-  'PROC-BUDGET': { agent: 'PaperclipForge AI', company: 'paperclipforge-ai', phase: '2 — State/Modals', discipline: '00400', task: 'Budget management' },
-  'PROC-EMERG': { agent: 'PaperclipForge AI', company: 'paperclipforge-ai', phase: '4 — Advanced', discipline: '00400', task: 'Emergency procurement' },
-  'PROC-INTEL': { agent: 'KnowledgeForge AI', company: 'knowledgeforge-ai', phase: '3 — Integration', discipline: '00400', task: 'Market intelligence' },
-  'PROC-INV': { agent: 'PaperclipForge AI', company: 'paperclipforge-ai', phase: '2 — State/Modals', discipline: '00400', task: 'Inventory management' },
-  'PROC-LONG': { agent: 'PaperclipForge AI', company: 'paperclipforge-ai', phase: '4 — Advanced', discipline: '00435', task: 'Long-term agreements' },
-  'PROC-NCR': { agent: 'QualityForge AI', company: 'qualityforge-ai', phase: '5 — Compliance', discipline: '00400', task: 'Non-conformance reporting' },
-  'PROC-ORDER': { agent: 'DevForge AI', company: 'devforge-ai', phase: '2 — State/Modals', discipline: '00400', task: 'Purchase order management' },
-  'PROC-SERVICE': { agent: 'PaperclipForge AI', company: 'paperclipforge-ai', phase: '3 — Integration', discipline: '00400', task: 'Service procurement' },
-  'PROC-SUPP': { agent: 'PaperclipForge AI', company: 'paperclipforge-ai', phase: '4 — Advanced', discipline: '00400', task: 'Supplier management' },
-  'PROC-TRACK': { agent: 'PaperclipForge AI', company: 'paperclipforge-ai', phase: '3 — Integration', discipline: '00400', task: 'Procurement tracking' },
-  'PROC-VETTING': { agent: 'PaperclipForge AI', company: 'paperclipforge-ai', phase: '5 — Compliance', discipline: '00425', task: 'Supplier vetting' },
-  'PROC-VOICE': { agent: 'VoiceForge AI', company: 'voiceforge-ai', phase: '3 — Integration', discipline: '00400', task: 'Voice interface for procurement' },
-
-  // ENGINEERING (00800-00872)
-  'ENG-AUTO-000': { agent: 'PaperclipForge AI', company: 'paperclipforge-ai', phase: '1 — Foundation', discipline: '00800', task: 'Engineering template ecosystem' },
-  'ENG-PLATFORM-000': { agent: 'DevForge AI', company: 'devforge-ai', phase: '1 — Foundation', discipline: '00800', task: 'Engineering platform foundation' },
-  'ENG-VOICE': { agent: 'VoiceForge AI', company: 'voiceforge-ai', phase: '3 — Integration', discipline: '00800', task: 'Voice interface for engineering' },
-
-  // ALL-DISCIPLINES (shared)
-  'DESIGN-WORKFLOW': { agent: 'DomainForge AI', company: 'domainforge-ai', phase: '3 — Integration', discipline: '00800', task: 'Design workflow automation' },
-  'ARCH-VOICE': { agent: 'VoiceForge AI', company: 'voiceforge-ai', phase: '3 — Integration', discipline: '00825', task: 'Voice interface for architectural' },
-  'ARCHITECTURAL-WORKFLOW': { agent: 'DomainForge AI', company: 'domainforge-ai', phase: '3 — Integration', discipline: '00825', task: 'Architectural workflow' },
-  'CHEM-VOICE': { agent: 'VoiceForge AI', company: 'voiceforge-ai', phase: '3 — Integration', discipline: '00835', task: 'Voice interface for chemical' },
-  'CHEMICAL-WORKFLOW': { agent: 'DomainForge AI', company: 'domainforge-ai', phase: '3 — Integration', discipline: '00835', task: 'Chemical engineering workflow' },
-  'CIVIL-VOICE': { agent: 'VoiceForge AI', company: 'voiceforge-ai', phase: '3 — Integration', discipline: '00850', task: 'Voice interface for civil' },
-  'CIVIL-WORKFLOW': { agent: 'DomainForge AI', company: 'domainforge-ai', phase: '3 — Integration', discipline: '00850', task: 'Civil engineering workflow' },
-  'LAND-VOICE': { agent: 'VoiceForge AI', company: 'voiceforge-ai', phase: '3 — Integration', discipline: '00855', task: 'Voice interface for geotechnical' },
-  'GEOTECH-WORKFLOW': { agent: 'DomainForge AI', company: 'domainforge-ai', phase: '3 — Integration', discipline: '00855', task: 'Geotechnical workflow' },
-  'GEO-VOICE': { agent: 'VoiceForge AI', company: 'voiceforge-ai', phase: '3 — Integration', discipline: '00855', task: 'Voice interface for geo' },
-  'MECH-VOICE': { agent: 'VoiceForge AI', company: 'voiceforge-ai', phase: '3 — Integration', discipline: '00870', task: 'Voice interface for mechanical' },
-  'MECH-WORKFLOW': { agent: 'DomainForge AI', company: 'domainforge-ai', phase: '3 — Integration', discipline: '00870', task: 'Mechanical engineering workflow' },
-  'PROCE-VOICE': { agent: 'VoiceForge AI', company: 'voiceforge-ai', phase: '3 — Integration', discipline: '00871', task: 'Voice interface for process' },
-  'PROCESS-WORKFLOW': { agent: 'DomainForge AI', company: 'domainforge-ai', phase: '3 — Integration', discipline: '00871', task: 'Process engineering workflow' },
-  'STRUC-VOICE': { agent: 'VoiceForge AI', company: 'voiceforge-ai', phase: '3 — Integration', discipline: '00850', task: 'Voice interface for structural' },
-  'ENV-WORKFLOW': { agent: 'DomainForge AI', company: 'domainforge-ai', phase: '3 — Integration', discipline: '01000', task: 'Environmental workflow' },
-  'ENV-VOICE': { agent: 'VoiceForge AI', company: 'voiceforge-ai', phase: '3 — Integration', discipline: '01000', task: 'Voice interface for environmental' },
-  'INTEGRATION-SETTINGS-UI': { agent: 'IntegrateForge AI', company: 'integrateforge-ai', phase: '4 — Advanced', discipline: '00800', task: 'Integration settings UI' },
-  'SECURITY-ASSET': { agent: 'DevForge AI', company: 'devforge-ai', phase: '4 — Advanced', discipline: '02500', task: 'Security asset management' },
-  'SUNDRY-WORKFLOW': { agent: 'DomainForge AI', company: 'domainforge-ai', phase: '3 — Integration', discipline: '03000', task: 'Sundry workflow' },
-  'SAAS-PROD-PREP': { agent: 'SaaSForge AI', company: 'saasforge-ai', phase: '5 — Compliance', discipline: '00800', task: 'SaaS production preparation' },
-  'MOBILE-TEST': { agent: 'MobileForge AI', company: 'mobileforge-ai', phase: '3 — Integration', discipline: '00800', task: 'Mobile platform testing' },
-  'PROD-TEST': { agent: 'QualityForge AI', company: 'qualityforge-ai', phase: '5 — Compliance', discipline: '00800', task: 'Production testing' },
-
-  // VOICE-COMM (shared)
-  'VOICE-COMM-001': { agent: 'DevForge AI', company: 'devforge-ai', phase: '1 — Foundation', discipline: 'voice', task: 'Core voice interface' },
-  'VOICE-COMM-002': { agent: 'DevForge AI', company: 'devforge-ai', phase: '2 — State/Modals', discipline: 'voice', task: 'HITL approval workflow' },
-  'VOICE-COMM-003': { agent: 'DevForge AI', company: 'devforge-ai', phase: '3 — Integration', discipline: 'voice', task: 'Document attachment' },
-  'VOICE-COMM-004': { agent: 'DevForge AI', company: 'devforge-ai', phase: '5 — Compliance', discipline: 'voice', task: 'Audit logging' },
-  'VOICE-COMM-101': { agent: 'MobileForge AI', company: 'mobileforge-ai', phase: '3 — Integration', discipline: 'voice', task: 'Mobile call integration' },
-  'VOICE-COMM-102': { agent: 'MobileForge AI', company: 'mobileforge-ai', phase: '4 — Advanced', discipline: 'voice', task: 'Mobile document capture' },
-
-  // CONTRACTS-QS (02025)
-  'CON-VOICE': { agent: 'DomainForge AI', company: 'domainforge-ai', phase: '3 — Integration', discipline: '00400', task: 'Contracts voice interface' },
-  'CPOST-VOICE': { agent: 'DomainForge AI', company: 'domainforge-ai', phase: '3 — Integration', discipline: '00435', task: 'Post-award voice interface' },
-  'CPRE-VOICE': { agent: 'DomainForge AI', company: 'domainforge-ai', phase: '3 — Integration', discipline: '00425', task: 'Pre-award voice interface' },
-  'QS-VOICE': { agent: 'MeasureForge AI', company: 'measureforge-ai', phase: '3 — Integration', discipline: '02025', task: 'QS voice interface' },
-
-  // MEASUREMENT (shared)
-  'MEASURE-AI': { agent: 'MeasureForge AI', company: 'measureforge-ai', phase: '4 — Advanced', discipline: 'measurement', task: 'AI measurement tools' },
-  'MEASURE-ANALYTICS': { agent: 'KnowledgeForge AI', company: 'knowledgeforge-ai', phase: '3 — Integration', discipline: 'measurement', task: 'Measurement analytics' },
-  'MEASURE-CAD': { agent: 'MeasureForge AI', company: 'measureforge-ai', phase: '4 — Advanced', discipline: 'measurement', task: 'CAD integration' },
-  'MEASURE-COMM': { agent: 'MeasureForge AI', company: 'measureforge-ai', phase: '3 — Integration', discipline: 'measurement', task: 'Measurement communication' },
-  'MEASURE-TEMPLATES': { agent: 'MeasureForge AI', company: 'measureforge-ai', phase: '2 — State/Modals', discipline: 'measurement', task: 'Measurement templates' },
-  'MEASURE-TENDER': { agent: 'MeasureForge AI', company: 'measureforge-ai', phase: '4 — Advanced', discipline: 'measurement', task: 'Tender measurement' },
-
-  // ELEC-PROJECTS (00860)
-  'ELEC-VOICE': { agent: 'DevForge AI', company: 'devforge-ai', phase: '3 — Integration', discipline: '00860', task: 'Electrical voice interface' },
-  'ELEC-WORKFLOW': { agent: 'DomainForge AI', company: 'domainforge-ai', phase: '3 — Integration', discipline: '00860', task: 'Electrical workflow' },
-
-  // LOGISTICS (01700)
-  'LOG-VOICE': { agent: 'VoiceForge AI', company: 'voiceforge-ai', phase: '3 — Integration', discipline: '01700', task: 'Logistics voice interface' },
-  'LOGISTICS-PLATFORM': { agent: 'DevForge AI', company: 'devforge-ai', phase: '1 — Foundation', discipline: '01700', task: 'Logistics platform foundation' },
-};
-
-// ============================================================
-// HELPER: Map discipline code to human-readable name for filtering
-// ============================================================
-function getDisciplineName(code) {
-  const map = {
-    '01900': 'procurement',
-    '00860': 'electrical',
-    '02400': 'safety',
-    '01700': 'logistics',
-    '02025': 'quantity surveying',
-    '00400': 'contracts',
-    '00425': 'pre award',
-    '00435': 'post award',
-    '00800': 'design',
-    '00825': 'architectural',
-    '00835': 'chemical',
-    '00850': 'civil',
-    '00855': 'geotechnical',
-    '00870': 'mechanical',
-    '00871': 'process',
-    '01000': 'environmental',
-    '02500': 'security',
-    '03000': 'sundry',
-    'voice': 'voice',
-    'measurement': 'measurement'
-  };
-  return map[code] || code;
-}
-
-// ============================================================
-// TASK EXECUTION — Executes test steps and posts results
-// ============================================================
-async function executeTask(issueId, workChannelId, serverName) {
-  const dispatchInfo = ISSUE_DISPATCH_MAP[issueId];
-  if (!dispatchInfo) {
-    console.log(`⚠️ [EXECUTE] No dispatch info for ${issueId}`);
-    return;
-  }
-
-  const channel = client.channels.cache.get(workChannelId);
-  if (!channel) {
-    console.log(`⚠️ [EXECUTE] Work channel ${workChannelId} not found`);
-    return;
-  }
-
-  const discipline = dispatchInfo.discipline;
-  const appBase = process.env.APP_BASE_URL || 'http://localhost:3060';
-  const testUser = process.env.TEST_USER || 'sarah.safety@epcm.co.za';
-  const testPass = process.env.TEST_PASS || 'anything';
-
-  console.log(`⚙️ [EXECUTE] Starting task execution for ${issueId} on ${appBase}`);
-
-  await channel.send(`⚙️ **Executing ${issueId}** — ${dispatchInfo.task}\n🔍 Testing against ${appBase}...`);
-
+async function spawnSubAgents(issueId, serverName, count = 5) {
   try {
-    // Step 1: Test app is running
-    const appCheck = await fetchUrl(`${appBase}/`);
-    const appStatus = appCheck.status === 200 ? '✅' : '❌';
-    await channel.send(`${appStatus} App server: HTTP ${appCheck.status}${appCheck.status === 200 ? '' : ' (expected 200)'}`);
-
-    // Step 2: Test auth
-    const authResult = await fetchUrl(`${appBase}/api/auth/login`, 'POST', {
-      email: testUser,
-      password: testPass
+    const response = await openclawApiRequest('/api/agents/spawn', 'POST', {
+      task: issueId,
+      server: serverName,
+      count: Math.min(count, CONFIG.maxSubAgentsPerWork),
+      model: process.env.SUB_AGENT_MODEL || 'deepseek/deepseek-chat'
     });
-    const hasToken = authResult.body && (authResult.body.includes('token') || authResult.body.includes('jwt') || authResult.body.includes('access_token'));
-    const authStatus = authResult.status === 200 && hasToken ? '✅' : '❌';
-    await channel.send(`${authStatus} Auth: HTTP ${authResult.status}${hasToken ? ' (JWT token present)' : ' (no token)'}`);
-
-    // Step 3: Verify pages endpoint
-    const pagesResult = await fetchUrl(`${appBase}/api/pages`);
-    let pageCount = 0;
-    if (pagesResult.status === 200 && pagesResult.body) {
-      try {
-        const pages = JSON.parse(pagesResult.body);
-        pageCount = Array.isArray(pages) ? pages.length : (pages.data ? pages.data.length : 0);
-      } catch { pageCount = 0; }
-    }
-    const pagesStatus = pagesResult.status === 200 && pageCount > 0 ? '✅' : '❌';
-    await channel.send(`${pagesStatus} Pages API: HTTP ${pagesResult.status} (${pageCount} pages)`);
-
-    // Step 4: Check discipline-specific pages (filter client-side since API returns all pages)
-    const discPages = await fetchUrl(`${appBase}/api/pages`);
-    let discCount = 0;
-    if (discPages.status === 200 && discPages.body) {
-      try {
-        const pages = JSON.parse(discPages.body);
-        const pagesArr = Array.isArray(pages) ? pages : (pages.data || []);
-        // Filter by discipline code (e.g., "01900") or discipline name (e.g., "procurement")
-        const discCode = discipline;
-        discCount = pagesArr.filter(p => {
-          const title = (p.title || p.name || '').toLowerCase();
-          const code = (p.code || p.id || '').toString();
-          return code.includes(discCode) || title.includes(discCode) || title.includes(getDisciplineName(discCode));
-        }).length;
-      } catch { discCount = 0; }
-    }
-    const discStatus = discPages.status === 200 && discCount > 0 ? '✅' : '❌';
-    await channel.send(`${discStatus} ${discipline} pages: ${discCount} found`);
-
-    // Step 5: Execute discipline-specific tests
-    if (dispatchInfo.phase === '1 — Foundation') {
-      // Foundation tests: auth, pages, nav
-      await channel.send(`📋 **Phase 1 Foundation Tests for ${issueId}:**`);
-      await channel.send(`  ✅ Auth flow verified (JWT present)`);
-      await channel.send(`  ✅ ${pageCount} total pages loaded`);
-      await channel.send(`  ✅ ${discCount} discipline pages for ${discipline}`);
-      await channel.send(`  ✅ API endpoints verified — auth, pages, and discipline filtering`);
-    } else if (dispatchInfo.phase === '2 — State/Modals') {
-      // State/Modal tests
-      const workspaceResult = await fetchUrl(`${appBase}/api/procurement/agent`);
-      const wsStatus = workspaceResult.status === 200 ? '✅' : '❌';
-      await channel.send(`${wsStatus} Workspace API: HTTP ${workspaceResult.status}`);
-
-      const uiResult = await fetchUrl(`${appBase}/api/ui-settings`);
-      const uiStatus = uiResult.status === 200 ? '✅' : '❌';
-      await channel.send(`${uiStatus} UI Settings: HTTP ${uiResult.status}`);
-    } else if (dispatchInfo.phase === '3 — Integration') {
-      // Integration tests
-      const chatResult = await fetchUrl(`${appBase}/api/chat`, 'POST', {
-        message: 'Hello, can you help?',
-        discipline: discipline
-      });
-      const chatStatus = chatResult.status === 200 ? '✅' : '❌';
-      await channel.send(`${chatStatus} Chatbot: HTTP ${chatResult.status}`);
-
-      const workflowResult = await fetchUrl(`${appBase}/api/workflows`);
-      const wfStatus = workflowResult.status === 200 ? '✅' : '❌';
-      await channel.send(`${wfStatus} Workflows: HTTP ${workflowResult.status}`);
-    } else if (dispatchInfo.phase === '4 — Advanced') {
-      // Advanced tests
-      const suppliersResult = await fetchUrl(`${appBase}/api/suppliers`);
-      const supStatus = suppliersResult.status === 200 ? '✅' : '❌';
-      await channel.send(`${supStatus} Suppliers: HTTP ${suppliersResult.status}`);
-
-      const tenderResult = await fetchUrl(`${appBase}/api/tender-integration`);
-      const tenStatus = tenderResult.status === 200 ? '✅' : '❌';
-      await channel.send(`${tenStatus} Tender Integration: HTTP ${tenderResult.status}`);
-    } else if (dispatchInfo.phase === '5 — Compliance') {
-      // Compliance tests
-      const govResult = await fetchUrl(`${appBase}/api/governance`);
-      const govStatus = govResult.status === 200 ? '✅' : '❌';
-      await channel.send(`${govStatus} Governance: HTTP ${govResult.status}`);
-
-      const approvalResult = await fetchUrl(`${appBase}/api/approvals`);
-      const apprStatus = approvalResult.status === 200 ? '✅' : '❌';
-      await channel.send(`${apprStatus} Approvals: HTTP ${approvalResult.status}`);
-    }
-
-    // Summary
-    await channel.send(`\n✅ **${issueId} execution complete** — Results posted above.\n📝 Type \`@agent done\` to archive this channel.`);
-
-    // Post to project-log
-    await postToProjectLog(serverName,
-      `✅ **${issueId} execution complete**\n` +
-      `📅 Completed: <t:${Math.floor(Date.now() / 1000)}:R>\n` +
-      `🎯 Dispatched to: **${dispatchInfo.agent}**\n` +
-      `📋 Phase: ${dispatchInfo.phase}\n` +
-      `🔗 Work channel: <#${workChannelId}>`
-    );
-
-    console.log(`✅ [EXECUTE] ${issueId} execution complete`);
+    console.log(`🤖 [SPAWN] Spawned ${response.spawned || '?'} sub-agents for ${issueId}`);
+    return response;
   } catch (err) {
-    const errorMsg = err.message || err.code || 'Connection refused';
-    console.log(`❌ [EXECUTE] Error executing ${issueId}: ${errorMsg}`);
-    await channel.send(`❌ **Execution error:** ${errorMsg}\n\n` +
-      `The app server at \`${appBase}\` is not reachable from this VPS.\n` +
-      `To run tests, set \`APP_BASE_URL\` to the app's URL (e.g., your local machine's IP or a public URL).\n` +
-      `Current config: \`${appBase}\` — test user: \`${testUser}\``);
-  }
-}
-
-// Helper: fetch URL with timeout
-function fetchUrl(url, method = 'GET', body = null) {
-  return new Promise((resolve, reject) => {
-    const parsed = new URL(url);
-    const lib = parsed.protocol === 'https:' ? https : http;
-    const options = {
-      hostname: parsed.hostname,
-      port: parsed.port || (parsed.protocol === 'https:' ? 443 : 80),
-      path: parsed.pathname + parsed.search,
-      method: method,
-      timeout: 10000,
-      headers: { 'Content-Type': 'application/json' }
-    };
-
-    const req = lib.request(options, (res) => {
-      let data = '';
-      res.on('data', chunk => data += chunk);
-      res.on('end', () => resolve({ status: res.statusCode, body: data }));
-    });
-
-    req.on('error', (err) => reject(err));
-    req.on('timeout', () => { req.destroy(); reject(new Error('Timeout')); });
-
-    if (body) req.write(JSON.stringify(body));
-    req.end();
-  });
-}
-
-// ============================================================
-// AGENT DISPATCH — Creates agent config + writes task payload
-// ============================================================
-async function dispatchToAgent(issueId, serverName, model = null) {
-  const dispatchInfo = ISSUE_DISPATCH_MAP[issueId];
-  if (!dispatchInfo) {
-    console.log(`⚠️ [DISPATCH] No dispatch info for ${issueId} — falling back to generic sub-agents`);
-    return null;
-  }
-
-  const agentModel = model || process.env.SUB_AGENT_MODEL || 'deepseek-v4-pro';
-  const agentSlug = dispatchInfo.company.replace(/-/g, '');
-  const agentName = `${agentSlug}-${issueId.toLowerCase()}`;
-  const workspaceDir = `${SUB_AGENT_WORKSPACE_BASE}/${agentName}`;
-  const agentDir = `${OPENCLAW_HOME}/agents/${agentName}`;
-  const agentConfigDir = `${agentDir}/agent`;
-
-  console.log(`🎯 [DISPATCH] Routing ${issueId} → ${dispatchInfo.agent} (${dispatchInfo.company})`);
-
-  try {
-    // Step 1: Create directories
-    execSync(`mkdir -p '${agentConfigDir}' '${workspaceDir}'`, { timeout: 10000 });
-
-    // Step 2: Write models.json
-    fs.writeFileSync(`${agentConfigDir}/models.json`, JSON.stringify(AGENT_MODELS_TEMPLATE, null, 2));
-
-    // Step 3: Write auth-profiles.json
-    const authProfiles = JSON.parse(JSON.stringify(AGENT_AUTH_TEMPLATE));
-    const authProfileKey = `deepseek:${agentModel === 'deepseek-v4-flash' ? 'flash' : 'pro'}`;
-    authProfiles.profiles[authProfileKey] = {
-      "type": "api_key",
-      "provider": "deepseek",
-      "key": agentModel === 'deepseek-v4-flash'
-        ? process.env.DEEPSEEK_FLASH_API_KEY || 'sk-649cb67199684fca907afec4b62cb1d5'
-        : process.env.DEEPSEEK_PRO_API_KEY || 'sk-8f4ba72b559343a9ad44b6442ded01bd'
-    };
-    fs.writeFileSync(`${agentConfigDir}/auth-profiles.json`, JSON.stringify(authProfiles, null, 2));
-
-    // Step 4: Write auth-state.json
-    fs.writeFileSync(`${agentConfigDir}/auth-state.json`, JSON.stringify({ "version": 1, "state": {} }, null, 2));
-
-    // Step 5: Write TASK.md — the actual task payload for the agent
-    const taskPayload = `# Task: ${issueId}\n\n` +
-      `**Assigned Agent:** ${dispatchInfo.agent}\n` +
-      `**Company:** ${dispatchInfo.company}\n` +
-      `**Discipline:** ${dispatchInfo.discipline}\n` +
-      `**Phase:** ${dispatchInfo.phase}\n` +
-      `**Server:** ${serverName}\n\n` +
-      `## Task Description\n\n${dispatchInfo.task}\n\n` +
-      `## Required Actions\n\n` +
-      `1. Execute the assigned task for ${issueId}\n` +
-      `2. Verify all acceptance criteria are met\n` +
-      `3. Report results back to the work channel\n\n` +
-      `## Status\n\n` +
-      `- [ ] Task received\n` +
-      `- [ ] In progress\n` +
-      `- [ ] Verification complete\n` +
-      `- [ ] Results reported\n`;
-    fs.writeFileSync(`${workspaceDir}/TASK.md`, taskPayload);
-
-    // Step 6: Register agent in openclaw.json
-    const configPath = `${OPENCLAW_HOME}/openclaw.json`;
-    let config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
-    const existingIdx = config.agents.list.findIndex(a => a.id === agentName);
-    const agentEntry = {
-      "id": agentName,
-      "name": agentName,
-      "workspace": workspaceDir,
-      "agentDir": agentConfigDir
-    };
-    if (existingIdx >= 0) {
-      config.agents.list[existingIdx] = agentEntry;
-    } else {
-      config.agents.list.push(agentEntry);
-    }
-    fs.writeFileSync(configPath, JSON.stringify(config, null, 2));
-
-    console.log(`   → Dispatched ${issueId} to ${agentName} (${dispatchInfo.agent})`);
-    return {
-      agentName,
-      agentDisplay: dispatchInfo.agent,
-      company: dispatchInfo.company,
-      phase: dispatchInfo.phase,
-      discipline: dispatchInfo.discipline,
-      task: dispatchInfo.task
-    };
-  } catch (err) {
-    console.log(`⚠️ [DISPATCH] Error dispatching ${issueId}: ${err.message}`);
-    return null;
+    console.log(`⚠️ [SPAWN] Gateway not available for ${issueId}: ${err.message}`);
+    console.log(`   (Sub-agents will run when OPENCLAW_API_BASE is configured)`);
+    return { spawned: 0, error: err.message };
   }
 }
 
@@ -1075,29 +494,15 @@ async function createWorkChannel(guildId, serverName, issueId, customName = null
   const existing = findChannelByName(serverName, channelName);
   if (existing) {
     const [existingId] = existing;
-    // Verify the channel still exists in Discord
-    const guild = client.guilds.cache.get(guildId);
-    const existingChannel = guild ? guild.channels.cache.get(existingId) : null;
-    if (existingChannel) {
-      console.log(`📋 [WORK] Channel #${channelName} already exists (${existingId}) in ${serverName} — reusing`);
-      return existingId;
-    } else {
-      console.log(`📋 [WORK] Channel #${channelName} was deleted — creating new one`);
-    }
+    console.log(`📋 [WORK] Channel #${channelName} already exists (${existingId}) in ${serverName} — reusing`);
+    return existingId;
   }
 
   // Also check activeWorks for any existing session
   for (const [chId, work] of Object.entries(activeWorks)) {
     if (work.issueId === issueId && work.server === serverName) {
-      const guild = client.guilds.cache.get(guildId);
-      const existingChannel = guild ? guild.channels.cache.get(chId) : null;
-      if (existingChannel) {
-        console.log(`📋 [WORK] Active work session already exists for ${issueId} in ${serverName} — reusing channel ${chId}`);
-        return chId;
-      } else {
-        console.log(`📋 [WORK] Active work session channel was deleted — creating new one`);
-        delete activeWorks[chId];
-      }
+      console.log(`📋 [WORK] Active work session already exists for ${issueId} in ${serverName} — reusing channel ${chId}`);
+      return chId;
     }
   }
 
@@ -1258,7 +663,7 @@ client.once(Events.ClientReady, (c) => {
   // Build the dynamic channel map
   CHANNEL_MAP = buildChannelMap(c);
 
-  const agentChannels = Object.values(CHANNEL_MAP).filter(ch => ch.agent !== null).length;
+  const agentChannels = Object.values(CHANNEL_MAP).filter(ch => ch.agentDisplay !== null).length;
   const byType = {};
   Object.values(CHANNEL_MAP).forEach(ch => {
     byType[ch.type] = (byType[ch.type] || 0) + 1;
@@ -1307,14 +712,8 @@ setInterval(() => {
 client.on(Events.MessageCreate, async (message) => {
   if (message.author.bot) return;
 
-  // DEBUG: Log every message received
-  console.log(`📨 [RAW] channel=${message.channelId} author=${message.author.username} content="${message.content.substring(0, 80)}"`);
-
   const channelInfo = CHANNEL_MAP[message.channelId];
-  if (!channelInfo) {
-    console.log(`⚠️ [RAW] No channel info for ${message.channelId} — not in CHANNEL_MAP`);
-    return;
-  }
+  if (!channelInfo) return;
 
   const { type, agent, server, name, purpose } = channelInfo;
 
@@ -1335,7 +734,7 @@ client.on(Events.MessageCreate, async (message) => {
           status += `**Servers (${guilds.size}):**\n`;
           guilds.forEach(g => {
             const serverChannels = Object.values(CHANNEL_MAP).filter(c => c.server === g.name);
-            const agentCh = serverChannels.filter(c => c.agent !== null).length;
+            const agentCh = serverChannels.filter(c => c.agentDisplay !== null).length;
             const byType = {};
             serverChannels.forEach(ch => { byType[ch.type] = (byType[ch.type] || 0) + 1; });
             const typeSummary = Object.entries(byType).map(([k, v]) => `${k}:${v}`).join(' ');
@@ -1373,18 +772,14 @@ client.on(Events.MessageCreate, async (message) => {
           break;
 
         case '!channels': {
-          const agentChannels = Object.entries(CHANNEL_MAP).filter(([id, info]) => info.agent);
-          const total = agentChannels.length;
-          const byServer = {};
-          agentChannels.forEach(([id, info]) => {
-            if (!byServer[info.server]) byServer[info.server] = [];
-            byServer[info.server].push(info);
-          });
-          let reply = `**All Agent Channels (${total} total):**\n`;
-          for (const [server, channels] of Object.entries(byServer)) {
-            const names = channels.map(c => `#${c.name}`).join(', ');
-            reply += `**${server}:** ${names}\n`;
-            if (reply.length > 1800) break;
+          let reply = '**All Agent Channels:**\n';
+          for (const [id, info] of Object.entries(CHANNEL_MAP)) {
+            if (info.agentDisplay) {
+              const agentInfo = info.agentSlug && AGENT_REGISTRY[info.agentSlug] 
+                ? `**${info.agentDisplay}** (${info.agentRole})` 
+                : info.agentDisplay;
+              reply += `  • **${info.server}/#${info.name}** → ${agentInfo} — ${info.purpose} [${info.type}]\n`;
+            }
           }
           await message.reply(reply);
           break;
@@ -1472,108 +867,13 @@ client.on(Events.MessageCreate, async (message) => {
         '`!works` — List active work sessions\n' +
         '\n**Channel routing:** Add `in #channel-name` to route output to a specific channel.'
       );
-    } else if (command === '!ping') {
-      await message.reply('🏓 Pong! Bot is online.');
-    } else if (command === '!status') {
-      const guilds = client.guilds.cache;
-      let status = '🟢 **OpenClaw Bot Status**\n\n';
-      status += `**Servers (${guilds.size}):**\n`;
-      guilds.forEach(g => {
-        const serverChannels = Object.values(CHANNEL_MAP).filter(c => c.server === g.name);
-        const agentCh = serverChannels.filter(c => c.agent !== null).length;
-        const byType = {};
-        serverChannels.forEach(ch => { byType[ch.type] = (byType[ch.type] || 0) + 1; });
-        const typeSummary = Object.entries(byType).map(([k, v]) => `${k}:${v}`).join(' ');
-        status += `  • **${g.name}** — ${agentCh} agent channels (${typeSummary})\n`;
-      });
-      status += `\n**Total channels:** ${Object.keys(CHANNEL_MAP).length}`;
-      if (Object.keys(activeWorks).length > 0) {
-        status += `\n**Active works:** ${Object.keys(activeWorks).length}`;
-      }
-      await message.reply(status);
-    } else if (command === '!channels') {
-      const agentChannels = Object.entries(CHANNEL_MAP).filter(([id, info]) => info.agent);
-      const total = agentChannels.length;
-      // Group by server to keep it compact
-      const byServer = {};
-      agentChannels.forEach(([id, info]) => {
-        if (!byServer[info.server]) byServer[info.server] = [];
-        byServer[info.server].push(info);
-      });
-      let reply = `**All Agent Channels (${total} total):**\n`;
-      for (const [server, channels] of Object.entries(byServer)) {
-        const names = channels.map(c => `#${c.name}`).join(', ');
-        reply += `**${server}:** ${names}\n`;
-        if (reply.length > 1800) {
-          reply += `... and ${total - agentChannels.slice(0, agentChannels.findIndex(([id]) => id === channels[0].id) + channels.length).length} more`;
-          break;
-        }
-      }
-      await message.reply(reply);
-    } else if (command === '!whoami') {
-      const thisChannel = CHANNEL_MAP[message.channelId];
-      if (thisChannel && thisChannel.agent) {
-        await message.reply(`This channel is assigned to **${thisChannel.agent}** for **${thisChannel.purpose}**.`);
-      } else {
-        await message.reply(`This is a **${thisChannel ? thisChannel.type : 'unknown'}** channel.`);
-      }
-    } else if (command === '!taxonomy') {
-      const byType = {};
-      Object.values(CHANNEL_MAP).forEach(ch => {
-        if (!byType[ch.type]) byType[ch.type] = [];
-        byType[ch.type].push(ch);
-      });
-      let reply = '📊 **Channel Taxonomy Breakdown**\n\n';
-      for (const [type, channels] of Object.entries(byType)) {
-        reply += `**${type}** (${channels.length}):\n`;
-        channels.slice(0, 5).forEach(ch => {
-          reply += `  • ${ch.server}/#${ch.name}\n`;
-        });
-        if (channels.length > 5) reply += `  • ... and ${channels.length - 5} more\n`;
-        reply += '\n';
-      }
-      await message.reply(reply);
-    } else if (command === '!works') {
-      if (Object.keys(activeWorks).length === 0) {
-        await message.reply('No active work sessions.');
-        return;
-      }
-      let reply = '🔧 **Active Work Sessions**\n\n';
-      for (const [channelId, work] of Object.entries(activeWorks)) {
-        const elapsed = Math.round((Date.now() - work.startedAt) / 1000 / 60);
-        reply += `  • **${work.issueId}** — ${elapsed}m — ${work.subAgentCount} sub-agents — ${work.status}\n`;
-      }
-      await message.reply(reply);
     } else if (command === 'work' || (command.startsWith('@agent') && args.includes('work'))) {
-      // Parse optional channel routing: "in #channel-name" or "in <#channel-id>"
+      // Parse optional channel routing: "in #channel-name"
       let targetChannelName = null;
       const inIdx = args.indexOf('in');
       if (inIdx !== -1 && inIdx < args.length - 1) {
-        let rawTarget = args[inIdx + 1];
-        // Handle Discord mention format: <#CHANNEL_ID>
-        const mentionMatch = rawTarget.match(/^<#(\d+)>$/);
-        if (mentionMatch) {
-          const channelId = mentionMatch[1];
-          // Look up the channel name from the client's cache using message.guildId
-          const guild = client.guilds.cache.get(message.guildId);
-          if (guild) {
-            const channel = guild.channels.cache.get(channelId);
-            if (channel) {
-              targetChannelName = channel.name;
-            }
-          }
-        } else {
-          // Plain #channel-name format
-          targetChannelName = rawTarget.replace(/^#/, '');
-        }
+        targetChannelName = args[inIdx + 1].replace(/^#/, '');
         args.splice(inIdx, 2);
-      }
-
-      // Check for --flash flag (use deepseek-flash for simpler issues)
-      const useFlash = args.includes('--flash');
-      if (useFlash) {
-        const flashIdx = args.indexOf('--flash');
-        args.splice(flashIdx, 1);
       }
 
       // Parse issue IDs: comma-separated, or space-separated after 'on'
@@ -1587,12 +887,11 @@ client.on(Events.MessageCreate, async (message) => {
       }
 
       if (issueArgs.length === 0) {
-        await message.reply('Usage: `@agent work on {issue-id}` (e.g., `@agent work on PROCURE-001`)\nFor multiple: `@agent work on PROCURE-001, PROCURE-002`\nAdd `--flash` for simpler issues (uses deepseek-flash instead of deepseek-pro).');
+        await message.reply('Usage: `@agent work on {issue-id}` (e.g., `@agent work on PROCURE-001`)\nFor multiple: `@agent work on PROCURE-001, PROCURE-002`');
         return;
       }
 
       const issueIds = issueArgs.map(a => a.replace(/^#/, '').replace(/,/g, '').trim().toUpperCase()).filter(a => a.length > 0);
-      const agentModel = useFlash ? 'deepseek-v4-flash' : 'deepseek-v4-pro';
 
       await message.reply(
         `📋 **Starting work on ${issueIds.length} issue(s)** ...\n` +
@@ -1625,7 +924,16 @@ client.on(Events.MessageCreate, async (message) => {
         let agentSlug = null;
         let agentDisplay = 'Unknown';
         let agentRole = '';
-        const issueChannelEntry = Object.entries(ISSUE_CHANNELS).find(([id, info]) => info.purpose === issueId);
+        // First try exact match on issue ID
+        let issueChannelEntry = Object.entries(ISSUE_CHANNELS).find(([id, info]) => info.purpose === issueId);
+        // Fallback: match by prefix (e.g., PROD-001 matches PROD-TEST channel)
+        if (!issueChannelEntry) {
+          const prefix = issueId.split('-')[0];
+          issueChannelEntry = Object.entries(ISSUE_CHANNELS).find(([id, info]) => {
+            const purposePrefix = info.purpose.split('-')[0];
+            return purposePrefix === prefix && info.server === server;
+          });
+        }
         if (issueChannelEntry) {
           agentSlug = issueChannelEntry[1].agentSlug;
           if (agentSlug && AGENT_REGISTRY[agentSlug]) {
@@ -1656,32 +964,16 @@ client.on(Events.MessageCreate, async (message) => {
           agentRole
         };
 
-        // Dispatch to the correct agent for this issue
-        const dispatchResult = await dispatchToAgent(issueId, server, agentModel);
-        const dispatchedAgent = dispatchResult ? dispatchResult.agentDisplay : 'Unknown';
-        const dispatchedCompany = dispatchResult ? dispatchResult.company : 'unknown';
-        const dispatchedTask = dispatchResult ? dispatchResult.task : 'Execute assigned task';
-        const dispatchedPhase = dispatchResult ? dispatchResult.phase : 'Unknown';
-        const dispatchedDiscipline = dispatchResult ? dispatchResult.discipline : 'Unknown';
-
-        activeWorks[workChannelId].subAgentCount = 1;
-        activeWorks[workChannelId].dispatchedAgent = dispatchedAgent;
-        activeWorks[workChannelId].dispatchedCompany = dispatchedCompany;
-        activeWorks[workChannelId].dispatchedTask = dispatchedTask;
-        activeWorks[workChannelId].dispatchedPhase = dispatchedPhase;
-
-        // Update work channel topic with dispatch info
-        await discordApiRequest(`/channels/${workChannelId}`, 'PATCH', {
-          topic: `Active work session for ${issueId} — dispatched to ${dispatchedAgent} (${dispatchedCompany}) — Phase: ${dispatchedPhase} — Task: ${dispatchedTask}`
-        });
+        const spawnResult = await spawnSubAgents(issueId, server, 5);
+        const spawnedCount = spawnResult.spawned || 0;
+        activeWorks[workChannelId].subAgentCount = spawnedCount;
 
         await postToProjectLog(server,
           `🔧 **Work Started: ${issueId}**\n` +
           `📅 Started: <t:${Math.floor(Date.now() / 1000)}:R>\n` +
-          `🎯 Dispatched to: **${dispatchedAgent}** (${dispatchedCompany})\n` +
-          `📋 Phase: ${dispatchedPhase}\n` +
-          `📝 Task: ${dispatchedTask}\n` +
-          `🔗 Work channel: <#${workChannelId}>`
+          `🤖 Sub-agents: ${spawnedCount > 0 ? spawnedCount : 'pending gateway config'}\n` +
+          `🔗 Work channel: <#${workChannelId}>\n` +
+          `🤖 Agent: **${agentDisplay}** (${agentRole})`
         );
 
         // Notify the assigned agent's issue channel with agent details
@@ -1690,15 +982,10 @@ client.on(Events.MessageCreate, async (message) => {
           `🔧 **Work Started: ${issueId}**\n` +
           `🤖 Agent: **${agentInfo.agentDisplay}** (${agentInfo.agentRole})\n` +
           `📅 Started: <t:${Math.floor(Date.now() / 1000)}:R>\n` +
-          `🎯 Dispatched to: **${dispatchedAgent}** (${dispatchedCompany})\n` +
-          `📋 Phase: ${dispatchedPhase}\n` +
-          `📝 Task: ${dispatchedTask}\n` +
+          `🤖 Sub-agents: ${spawnedCount > 0 ? spawnedCount : 'pending gateway config'}\n` +
           `🔗 Work channel: <#${workChannelId}>\n` +
           `📝 Type \`@agent done\` in the work channel when complete.`
         );
-
-        // Execute the task (make API calls, post results)
-        await executeTask(issueId, workChannelId, server);
 
         successCount++;
       }
@@ -1779,7 +1066,7 @@ client.on(Events.MessageCreate, async (message) => {
   // ── LOG CHANNELS (#project-log) — Agent writes only ──
   if (type === 'log') {
     // Humans can write, but it's primarily agent-output
-    console.log(`📝 [LOG/${server}] ${message.author.username}: ${message.content.substring(0, 100)}`);
+    console.log(`📝 [LOG/${server}] ${message.author.username}: ${content.substring(0, 100)}`);
     return;
   }
 
@@ -1803,7 +1090,7 @@ client.on(Events.MessageCreate, async (message) => {
   }
 
   // ── ISSUE CHANNELS (with agent assignments) ──
-  if (type === 'issue' && agent) {
+  if (type === 'issue' && agentDisplay) {
     const isMentioned = message.mentions.users.has(client.user.id);
     if (isMentioned) {
       const controlEntry = findChannelByType(server, 'control');
