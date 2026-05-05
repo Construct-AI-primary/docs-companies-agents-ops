@@ -1,0 +1,782 @@
+// ============================================================
+// BOT CORE — Logic module (config, API, helpers, message handler)
+// ============================================================
+const { Client, Events, ChannelType } = require('discord.js');
+const https = require('https');
+const http = require('http');
+const { SERVER_MAP, AGENT_REGISTRY } = require('./bot-registry');
+const { ISSUE_CHANNELS } = require('./bot-channels');
+
+// ============================================================
+// CONFIGURATION
+// ============================================================
+const CONFIG = {
+  openclawApiBase: process.env.OPENCLAW_API_BASE || 'http://localhost:8080',
+  openclawApiKey: process.env.OPENCLAW_API_KEY || '',
+  discordToken: process.env.DISCORD_BOT_TOKEN || '',
+  maxSubAgentsPerWork: 10,
+  workChannelCategoryName: 'WORKSPACES',
+  workChannelInactiveMinutes: 60,
+};
+
+// ============================================================
+// IN-MEMORY STATE
+// ============================================================
+const activeWorks = {};
+
+// ============================================================
+// CHANNEL TYPE INFERENCE
+// ============================================================
+function getChannelType(name) {
+  if (name === 'ai-work') return 'control';
+  if (name === 'project-log') return 'log';
+  if (name === 'project-ops') return 'ops';
+  if (name.startsWith('work-')) return 'work';
+  if (['deployments', 'monitoring', 'security', 'operations', 'agent-commands', 'voice-comm'].includes(name)) return 'system';
+  return 'issue';
+}
+
+function getReplyMode(type) {
+  switch (type) {
+    case 'control': return 'direct';
+    case 'log': return 'agent-write';
+    case 'ops': return 'direct';
+    case 'work': return 'direct';
+    case 'system': return 'agent-write';
+    case 'issue': return 'cross-ref';
+    default: return 'direct';
+  }
+}
+
+// ============================================================
+// DYNAMIC CHANNEL MAP — Built at startup from Discord guilds
+// ============================================================
+let CHANNEL_MAP = {};
+
+function buildChannelMap(client) {
+  const map = {};
+  const guilds = client.guilds.cache;
+
+  for (const [id, info] of Object.entries(ISSUE_CHANNELS)) {
+    let agentDisplay = info.agent;
+    let agentRole = '';
+    let agentSlug = info.agentSlug || null;
+    
+    if (agentSlug && AGENT_REGISTRY[agentSlug]) {
+      agentDisplay = AGENT_REGISTRY[agentSlug].display;
+      agentRole = AGENT_REGISTRY[agentSlug].role;
+    } else if (info.agent) {
+      agentDisplay = info.agent;
+    }
+    
+    map[id] = { 
+      ...info, 
+      type: 'issue', 
+      reply_mode: 'cross-ref',
+      agentDisplay,
+      agentRole,
+      agentSlug
+    };
+  }
+
+  guilds.forEach(guild => {
+    const serverName = guild.name;
+    guild.channels.cache.forEach(channel => {
+      if (channel.type !== ChannelType.GuildText) return;
+      const name = channel.name;
+      const type = getChannelType(name);
+      if (type === 'issue') return;
+
+      let purpose = '';
+      switch (type) {
+        case 'control': purpose = 'Agent command hub'; break;
+        case 'log': purpose = 'Agent output log'; break;
+        case 'ops': purpose = 'Operations channel'; break;
+        case 'work': purpose = 'Ephemeral work channel'; break;
+        case 'system': purpose = 'System channel'; break;
+      }
+
+      map[channel.id] = {
+        server: serverName,
+        name: name,
+        agent: null,
+        agentDisplay: null,
+        agentRole: null,
+        purpose: purpose,
+        type: type,
+        reply_mode: getReplyMode(type)
+      };
+    });
+  });
+
+  return map;
+}
+
+let rebuildTimeout = null;
+function scheduleRebuildChannelMap(client, delayMs = 3000) {
+  if (rebuildTimeout) clearTimeout(rebuildTimeout);
+  rebuildTimeout = setTimeout(() => {
+    CHANNEL_MAP = buildChannelMap(client);
+    console.log(`🔄 Channel map rebuilt: ${Object.keys(CHANNEL_MAP).length} channels`);
+    rebuildTimeout = null;
+  }, delayMs);
+}
+
+// ============================================================
+// HELPERS: Find channels
+// ============================================================
+function findChannelByType(server, type) {
+  return Object.entries(CHANNEL_MAP).find(
+    ([id, info]) => info.server === server && info.type === type
+  );
+}
+
+function findChannelByName(server, name) {
+  return Object.entries(CHANNEL_MAP).find(
+    ([id, info]) => info.server === server && info.name === name
+  );
+}
+
+// ============================================================
+// OPENCLAW GATEWAY API
+// ============================================================
+function openclawApiRequest(endpoint, method, body) {
+  return new Promise((resolve, reject) => {
+    const url = new URL(endpoint, CONFIG.openclawApiBase);
+    const isHttp = url.protocol === 'http:';
+    const lib = isHttp ? http : https;
+
+    const options = {
+      hostname: url.hostname,
+      port: url.port || (isHttp ? 80 : 443),
+      path: url.pathname + url.search,
+      method: method,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${CONFIG.openclawApiKey}`
+      }
+    };
+
+    const req = lib.request(options, (res) => {
+      let data = '';
+      res.on('data', chunk => data += chunk);
+      res.on('end', () => {
+        try { resolve(JSON.parse(data)); }
+        catch { resolve({ raw: data }); }
+      });
+    });
+
+    req.on('error', (err) => reject(err));
+    if (body) req.write(JSON.stringify(body));
+    req.end();
+  });
+}
+
+async function spawnSubAgents(issueId, serverName, count = 5) {
+  try {
+    const response = await openclawApiRequest('/api/agents/spawn', 'POST', {
+      task: issueId,
+      server: serverName,
+      count: Math.min(count, CONFIG.maxSubAgentsPerWork),
+      model: process.env.SUB_AGENT_MODEL || 'deepseek/deepseek-chat'
+    });
+    console.log(`🤖 [SPAWN] Spawned ${response.spawned || '?'} sub-agents for ${issueId}`);
+    return response;
+  } catch (err) {
+    console.log(`⚠️ [SPAWN] Gateway not available for ${issueId}: ${err.message}`);
+    return { spawned: 0, error: err.message };
+  }
+}
+
+// ============================================================
+// DISCORD API — REST calls
+// ============================================================
+function discordApiRequest(endpoint, method, body) {
+  return new Promise((resolve, reject) => {
+    const options = {
+      hostname: 'discord.com',
+      port: 443,
+      path: `/api/v10${endpoint}`,
+      method: method,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bot ${CONFIG.discordToken}`
+      }
+    };
+
+    const req = https.request(options, (res) => {
+      let data = '';
+      res.on('data', chunk => data += chunk);
+      res.on('end', () => {
+        try { resolve(JSON.parse(data)); }
+        catch { resolve({ raw: data }); }
+      });
+    });
+
+    req.on('error', (err) => reject(err));
+    if (body) req.write(JSON.stringify(body));
+    req.end();
+  });
+}
+
+// ============================================================
+// EPHEMERAL WORK CHANNEL — Create
+// ============================================================
+async function createWorkChannel(client, guildId, serverName, issueId, customName = null) {
+  const channelName = customName || `work-${issueId.toLowerCase().replace(/[^a-z0-9-]/g, '-')}`;
+
+  const existing = findChannelByName(serverName, channelName);
+  if (existing) {
+    const [existingId] = existing;
+    console.log(`📋 [WORK] Channel #${channelName} already exists (${existingId}) — reusing`);
+    return existingId;
+  }
+
+  for (const [chId, work] of Object.entries(activeWorks)) {
+    if (work.issueId === issueId && work.server === serverName) {
+      console.log(`📋 [WORK] Active session exists for ${issueId} — reusing channel ${chId}`);
+      return chId;
+    }
+  }
+
+  let categoryId = null;
+  const guild = client.guilds.cache.get(guildId);
+  if (guild) {
+    const category = guild.channels.cache.find(
+      ch => ch.type === ChannelType.GuildCategory && ch.name === CONFIG.workChannelCategoryName
+    );
+    if (category) categoryId = category.id;
+  }
+
+  try {
+    let agentDetails = '';
+    const issueChannelEntry = Object.entries(ISSUE_CHANNELS).find(([id, info]) => info.purpose === issueId);
+    if (issueChannelEntry) {
+      const agentSlug = issueChannelEntry[1].agentSlug;
+      if (agentSlug && AGENT_REGISTRY[agentSlug]) {
+        const agent = AGENT_REGISTRY[agentSlug];
+        agentDetails = ` — Agent: ${agent.display} (${agent.role})`;
+      }
+    }
+    
+    const result = await discordApiRequest(`/guilds/${guildId}/channels`, 'POST', {
+      name: channelName,
+      type: 0,
+      parent_id: categoryId,
+      topic: `Active work session for ${issueId}${agentDetails} — spawned sub-agents working in parallel.`
+    });
+
+    if (result.id) {
+      console.log(`📋 [WORK] Created work channel #${channelName} (${result.id}) in ${serverName}`);
+      return result.id;
+    } else {
+      console.error(`❌ [WORK] Failed to create channel: ${result.message}`);
+      return null;
+    }
+  } catch (err) {
+    console.error(`❌ [WORK] Error creating channel: ${err.message}`);
+    return null;
+  }
+}
+
+// ============================================================
+// EPHEMERAL WORK CHANNEL — Archive
+// ============================================================
+async function archiveWorkChannel(client, guildId, channelId) {
+  try {
+    const result = await discordApiRequest(`/channels/${channelId}`, 'PATCH', {
+      name: `archived-${CHANNEL_MAP[channelId]?.name || channelId}`,
+      topic: 'Archived work session — sub-agents completed.',
+      position: 999
+    });
+    console.log(`📦 [ARCHIVE] Archived work channel ${channelId}`);
+    return result;
+  } catch (err) {
+    console.error(`❌ [ARCHIVE] Error archiving channel: ${err.message}`);
+  }
+}
+
+// ============================================================
+// POST TO PROJECT-LOG
+// ============================================================
+async function postToProjectLog(client, serverName, content) {
+  const logEntry = findChannelByType(serverName, 'log');
+  if (logEntry) {
+    const [logId] = logEntry;
+    const channel = client.channels.cache.get(logId);
+    if (channel) await channel.send(content);
+  }
+}
+
+// ============================================================
+// POST TO ISSUE CHANNEL
+// ============================================================
+async function postToIssueChannel(client, serverName, issueId, content) {
+  const issueEntry = Object.entries(CHANNEL_MAP).find(
+    ([id, info]) => info.server === serverName && info.purpose === issueId
+  ) || Object.entries(CHANNEL_MAP).find(
+    ([id, info]) => info.server === 'ALL-DISCIPLINES' && issueId.startsWith(info.purpose.split('-')[0])
+  );
+  if (issueEntry) {
+    const [issueChannelId] = issueEntry;
+    const channel = client.channels.cache.get(issueChannelId);
+    if (channel) {
+      await channel.send(content);
+      console.log(`📨 [ISSUE] Posted to #${CHANNEL_MAP[issueChannelId]?.name} (${serverName}/${issueId})`);
+      return true;
+    }
+  }
+  console.log(`⚠️ [ISSUE] No issue channel found for ${issueId} in ${serverName}`);
+  return false;
+}
+
+// ============================================================
+// WORK SESSION COMPLETION
+// ============================================================
+async function completeWork(client, workChannelId, serverName, issueId) {
+  const workInfo = activeWorks[workChannelId];
+  if (!workInfo) return;
+
+  workInfo.status = 'completed';
+
+  let agentInfo = '';
+  if (workInfo.agentDisplay) {
+    agentInfo = `\n🤖 Agent: **${workInfo.agentDisplay}**`;
+    if (workInfo.agentRole) agentInfo += ` (${workInfo.agentRole})`;
+  }
+
+  const duration = Math.round((Date.now() - workInfo.startedAt) / 1000 / 60);
+  await postToProjectLog(client, serverName,
+    `📋 **Work Complete: ${issueId}**${agentInfo}\n` +
+    `📅 Duration: ${duration} minutes\n` +
+    `🤖 Sub-agents: ${workInfo.subAgentCount}\n` +
+    `✅ Status: Completed`
+  );
+
+  setTimeout(async () => {
+    const guildId = SERVER_MAP[serverName];
+    if (guildId) await archiveWorkChannel(client, guildId, workChannelId);
+    delete activeWorks[workChannelId];
+  }, 60000);
+
+  const controlEntry = findChannelByType(serverName, 'control');
+  if (controlEntry) {
+    const [controlId] = controlEntry;
+    const channel = client.channels.cache.get(controlId);
+    if (channel) {
+      await channel.send(`✅ **Work completed for ${issueId}** — sub-agents finished. Check #project-log for summary.`);
+    }
+  }
+}
+
+// ============================================================
+// MESSAGE HANDLER — Channel-type-aware dispatch
+// ============================================================
+function setupMessageHandler(client) {
+  client.on(Events.MessageCreate, async (message) => {
+    if (message.author.bot) return;
+
+    const channelInfo = CHANNEL_MAP[message.channelId];
+    if (!channelInfo) return;
+
+    const { type, server, name, purpose, agentDisplay } = channelInfo;
+
+    // ── SYSTEM CHANNELS (agent-commands) ──
+    if (type === 'system') {
+      if (name === 'agent-commands') {
+        const args = message.content.split(' ');
+        const command = args[0].toLowerCase();
+
+        switch (command) {
+          case '!ping':
+            await message.reply('🏓 Pong! Bot is online.');
+            break;
+
+          case '!status': {
+            const guilds = client.guilds.cache;
+            let status = '🟢 **OpenClaw Bot Status**\n\n';
+            status += `**Servers (${guilds.size}):**\n`;
+            guilds.forEach(g => {
+              const serverChannels = Object.values(CHANNEL_MAP).filter(c => c.server === g.name);
+              const agentCh = serverChannels.filter(c => c.agentDisplay !== null).length;
+              const byType = {};
+              serverChannels.forEach(ch => { byType[ch.type] = (byType[ch.type] || 0) + 1; });
+              const typeSummary = Object.entries(byType).map(([k, v]) => `${k}:${v}`).join(' ');
+              status += `  • **${g.name}** — ${agentCh} agent channels (${typeSummary})\n`;
+            });
+            status += `\n**Total channels:** ${Object.keys(CHANNEL_MAP).length}`;
+            if (Object.keys(activeWorks).length > 0) {
+              status += `\n**Active works:** ${Object.keys(activeWorks).length}`;
+            }
+            await message.reply(status);
+            break;
+          }
+
+          case '!help':
+            await message.reply(
+              '**OpenClaw Bot — Full Hybrid Channel Model**\n\n' +
+              '**Control Channels (#ai-work):**\n' +
+              '`@agent work on #{issue-id}` — Start work (creates #work-xxx, spawns sub-agents)\n' +
+              '`@agent plan #{issue-id}` — Plan work for an issue\n' +
+              '`@agent status` — Show server status\n\n' +
+              '**Issue Channels:**\n' +
+              'Type normally. Agent reads silently.\n' +
+              'Mention @agent → cross-reference in #ai-work.\n\n' +
+              '**Work Channels (#work-xxx):**\n' +
+              'Created automatically when work starts.\n' +
+              'Type @agent done → completes and archives.\n\n' +
+              '**Commands:**\n' +
+              '`!ping` — Check bot is alive\n' +
+              '`!status` — Show all servers and active works\n' +
+              '`!channels` — List all channels with agent assignments\n' +
+              '`!whoami` — Show this channel type\n' +
+              '`!taxonomy` — Show channel type breakdown\n' +
+              '`!works` — List active work sessions'
+            );
+            break;
+
+          case '!channels': {
+            let reply = '**All Agent Channels:**\n';
+            for (const [id, info] of Object.entries(CHANNEL_MAP)) {
+              if (info.agentDisplay) {
+                const agentInfo = info.agentSlug && AGENT_REGISTRY[info.agentSlug] 
+                  ? `**${info.agentDisplay}** (${info.agentRole})` 
+                  : info.agentDisplay;
+                reply += `  • **${info.server}/#${info.name}** → ${agentInfo} — ${info.purpose} [${info.type}]\n`;
+              }
+            }
+            await message.reply(reply);
+            break;
+          }
+
+          case '!whoami': {
+            const thisChannel = CHANNEL_MAP[message.channelId];
+            if (thisChannel && thisChannel.agentDisplay) {
+              const agentInfo = thisChannel.agentSlug && AGENT_REGISTRY[thisChannel.agentSlug] 
+                ? `**${thisChannel.agentDisplay}** (${thisChannel.agentRole})` 
+                : thisChannel.agentDisplay;
+              await message.reply(`This channel is assigned to ${agentInfo} for **${thisChannel.purpose}**.`);
+            } else {
+              await message.reply(`This is a **${thisChannel ? thisChannel.type : 'unknown'}** channel.`);
+            }
+            break;
+          }
+
+          case '!taxonomy': {
+            const byType = {};
+            Object.values(CHANNEL_MAP).forEach(ch => {
+              if (!byType[ch.type]) byType[ch.type] = [];
+              byType[ch.type].push(ch);
+            });
+            let reply = '📊 **Channel Taxonomy Breakdown**\n\n';
+            for (const [type, channels] of Object.entries(byType)) {
+              reply += `**${type}** (${channels.length}):\n`;
+              channels.slice(0, 5).forEach(ch => {
+                reply += `  • ${ch.server}/#${ch.name}\n`;
+              });
+              if (channels.length > 5) reply += `  • ... and ${channels.length - 5} more\n`;
+              reply += '\n';
+            }
+            await message.reply(reply);
+            break;
+          }
+
+          case '!works': {
+            if (Object.keys(activeWorks).length === 0) {
+              await message.reply('No active work sessions.');
+              return;
+            }
+            let reply = '🔧 **Active Work Sessions**\n\n';
+            for (const [channelId, work] of Object.entries(activeWorks)) {
+              const elapsed = Math.round((Date.now() - work.startedAt) / 1000 / 60);
+              reply += `  • **${work.issueId}** — ${elapsed}m — ${work.subAgentCount} sub-agents — ${work.status}\n`;
+            }
+            await message.reply(reply);
+            break;
+          }
+
+          default:
+            if (command.startsWith('!')) {
+              await message.reply(`Unknown command: ${command}. Try \`!help\``);
+            }
+        }
+      }
+      return;
+    }
+
+    // ── CONTROL CHANNELS (#ai-work) ──
+    if (type === 'control') {
+      const content = message.content;
+      const isAgentMention = message.mentions.users.has(client.user.id);
+      const isCommand = content.startsWith('!') || content.startsWith('@agent');
+
+      if (!isAgentMention && !isCommand) return;
+
+      const cleanContent = content.replace(/<@!?\d+>/g, '').trim();
+      const args = cleanContent.split(' ');
+      const command = args[0].toLowerCase();
+
+      if (command === '!help' || (command === '@agent' && args.length === 1)) {
+        await message.reply(
+          '**Control Channel (#ai-work):**\n' +
+          '`@agent work on {issue-id(s)}` — Start work (comma-separated for multiple)\n' +
+          '`@agent plan {issue-id}` — Plan work\n' +
+          '`@agent status` — Show status\n' +
+          '`!help` — Show this\n' +
+          '`!ping` — Check bot is alive\n' +
+          '`!status` — Show all servers and active works\n' +
+          '`!channels` — List all channels with agent assignments\n' +
+          '`!whoami` — Show this channel type\n' +
+          '`!taxonomy` — Show channel type breakdown\n' +
+          '`!works` — List active work sessions\n' +
+          '\n**Channel routing:** Add `in #channel-name` to route output to a specific channel.'
+        );
+      } else if (command === 'work' || (command.startsWith('@agent') && args.includes('work'))) {
+        let targetChannelName = null;
+        const inIdx = args.indexOf('in');
+        if (inIdx !== -1 && inIdx < args.length - 1) {
+          targetChannelName = args[inIdx + 1].replace(/^#/, '');
+          args.splice(inIdx, 2);
+        }
+
+        const onIdx = args.indexOf('on');
+        let issueArgs = [];
+        if (onIdx !== -1 && onIdx < args.length - 1) {
+          const afterOn = args.slice(onIdx + 1).join(' ');
+          issueArgs = afterOn.split(',').map(s => s.trim()).filter(s => s.length > 0);
+        } else {
+          issueArgs = args.filter(a => a.startsWith('#') || (a.includes('-') && a.match(/^[A-Z]+-/)));
+        }
+
+        if (issueArgs.length === 0) {
+          await message.reply('Usage: `@agent work on {issue-id}` (e.g., `@agent work on PROCURE-001`)\nFor multiple: `@agent work on PROCURE-001, PROCURE-002`');
+          return;
+        }
+
+        const issueIds = issueArgs.map(a => a.replace(/^#/, '').replace(/,/g, '').trim().toUpperCase()).filter(a => a.length > 0);
+
+        await message.reply(
+          `📋 **Starting work on ${issueIds.length} issue(s)** ...\n` +
+          `🔧 Creating work channels...\n` +
+          `🤖 Spawning sub-agents...`
+        );
+
+        let successCount = 0;
+        let failCount = 0;
+        const createdChannels = [];
+
+        let sharedChannelId = null;
+        if (targetChannelName) {
+          const guildId = SERVER_MAP[server];
+          if (guildId) {
+            sharedChannelId = await createWorkChannel(client, guildId, server, issueIds.join('-'), targetChannelName);
+          }
+        }
+
+        for (const issueId of issueIds) {
+          const guildId = SERVER_MAP[server];
+          if (!guildId) {
+            await message.reply(`❌ Unknown server: ${server}`);
+            failCount++;
+            continue;
+          }
+
+          let agentSlug = null;
+          let agentDisplay = 'Unknown';
+          let agentRole = '';
+          let issueChannelEntry = Object.entries(ISSUE_CHANNELS).find(([id, info]) => info.purpose === issueId);
+          if (!issueChannelEntry) {
+            const prefix = issueId.split('-')[0];
+            issueChannelEntry = Object.entries(ISSUE_CHANNELS).find(([id, info]) => {
+              const purposePrefix = info.purpose.split('-')[0];
+              return purposePrefix === prefix && info.server === server;
+            });
+          }
+          if (issueChannelEntry) {
+            agentSlug = issueChannelEntry[1].agentSlug;
+            if (agentSlug && AGENT_REGISTRY[agentSlug]) {
+              agentDisplay = AGENT_REGISTRY[agentSlug].display;
+              agentRole = AGENT_REGISTRY[agentSlug].role;
+            }
+          }
+
+          const workChannelId = sharedChannelId || await createWorkChannel(client, guildId, server, issueId);
+          if (!workChannelId) {
+            await message.reply(`❌ Failed to create work channel for ${issueId}. Check bot permissions.`);
+            failCount++;
+            continue;
+          }
+
+          createdChannels.push({ issueId, workChannelId });
+          scheduleRebuildChannelMap(client, 2000);
+
+          activeWorks[workChannelId] = {
+            issueId, server, status: 'active', subAgentCount: 0, startedAt: Date.now(),
+            agentSlug, agentDisplay, agentRole
+          };
+
+          const spawnResult = await spawnSubAgents(issueId, server, 5);
+          const spawnedCount = spawnResult.spawned || 0;
+          activeWorks[workChannelId].subAgentCount = spawnedCount;
+
+          await postToProjectLog(client, server,
+            `🔧 **Work Started: ${issueId}**\n` +
+            `📅 Started: <t:${Math.floor(Date.now() / 1000)}:R>\n` +
+            `🤖 Sub-agents: ${spawnedCount > 0 ? spawnedCount : 'pending gateway config'}\n` +
+            `🔗 Work channel: <#${workChannelId}>\n` +
+            `🤖 Agent: **${agentDisplay}** (${agentRole})`
+          );
+
+          const agentInfo = activeWorks[workChannelId];
+          await postToIssueChannel(client, server, issueId,
+            `🔧 **Work Started: ${issueId}**\n` +
+            `🤖 Agent: **${agentInfo.agentDisplay}** (${agentInfo.agentRole})\n` +
+            `📅 Started: <t:${Math.floor(Date.now() / 1000)}:R>\n` +
+            `🤖 Sub-agents: ${spawnedCount > 0 ? spawnedCount : 'pending gateway config'}\n` +
+            `🔗 Work channel: <#${workChannelId}>\n` +
+            `📝 Type \`@agent done\` in the work channel when complete.`
+          );
+
+          successCount++;
+        }
+
+        const logChannel = findChannelByType(server, 'log');
+        const logMention = logChannel ? `<#${logChannel[0]}>` : '#project-log';
+
+        let summary = `✅ **Work started: ${successCount} success, ${failCount} failed**\n`;
+        createdChannels.forEach(({ issueId, workChannelId }) => {
+          summary += `🔧 ${issueId}: <#${workChannelId}>\n`;
+        });
+        summary += `📝 Progress in ${logMention}\n`;
+        summary += `\nType \`@agent done\` in work channels when complete.`;
+
+        await message.reply(summary);
+      } else if (command === 'plan') {
+        const issueArg = args.find(a => a.startsWith('#') || (a.includes('-') && a.match(/^[A-Z]+-/)));
+        if (issueArg) {
+          const issueId = issueArg.replace('#', '').toUpperCase();
+          await message.reply(
+            `📋 **Planning ${issueId}**\n` +
+            `🔍 Reading issue context...\n` +
+            `📝 Estimated sub-agents needed: 5\n` +
+            `Use \`@agent work on ${issueId}\` to begin execution.`
+          );
+          await postToProjectLog(client, server,
+            `📋 **Planning: ${issueId}**\n` +
+            `Requested by ${message.author.username}\n` +
+            `Awaiting execution command.`
+          );
+        } else {
+          await message.reply('Usage: `@agent plan #{issue-id}` (e.g., `@agent plan PROCURE-007`)');
+        }
+      }
+      return;
+    }
+
+    // ── WORK CHANNELS (#work-xxx) ──
+    if (type === 'work') {
+      const workInfo = activeWorks[message.channelId];
+      if (!workInfo) {
+        console.log(`⚠️ [WORK] Unknown work channel: ${message.channelId}`);
+        return;
+      }
+
+      const content = message.content;
+      const isAgentMention = message.mentions.users.has(client.user.id);
+
+      if (isAgentMention && (content.toLowerCase().includes('done') || content.toLowerCase().includes('complete'))) {
+        await message.reply(`🔄 Completing work for **${workInfo.issueId}**...`);
+        await completeWork(client, message.channelId, workInfo.server, workInfo.issueId);
+        return;
+      }
+
+      if (isAgentMention) {
+        const issueChannel = Object.entries(CHANNEL_MAP).find(
+          ([id, info]) => info.server === workInfo.server && info.purpose === workInfo.issueId
+        );
+        if (issueChannel) {
+          const [issueId] = issueChannel;
+          const channel = client.channels.cache.get(issueId);
+          if (channel) {
+            await channel.send(
+              `📎 **From #${name}** — Sub-agent update for **${workInfo.issueId}**\n` +
+              `> ${content.substring(0, 200)}\n`
+            );
+          }
+        }
+      }
+
+      console.log(`🔧 [WORK/${workInfo.issueId}] ${message.author.username}: ${content.substring(0, 100)}`);
+      return;
+    }
+
+    // ── LOG CHANNELS (#project-log) ──
+    if (type === 'log') {
+      console.log(`📝 [LOG/${server}] ${message.author.username}: ${message.content.substring(0, 100)}`);
+      return;
+    }
+
+    // ── OPS CHANNELS (#project-ops) ──
+    if (type === 'ops') {
+      const content = message.content;
+      const isAgentMention = message.mentions.users.has(client.user.id);
+
+      if (isAgentMention) {
+        const cleanContent = content.replace(/<@!?\d+>/g, '').trim();
+        if (cleanContent.includes('deploy') || cleanContent.includes('restart') || cleanContent.includes('status')) {
+          await message.reply(
+            `⚙️ **Operations Command Received**\n` +
+            `This channel handles infrastructure commands.\n` +
+            `For VPS operations, use: \`!deploy\`, \`!backup\`, \`!status\`\n` +
+            `(Full integration pending OpenClaw gateway setup)`
+          );
+        }
+      }
+      return;
+    }
+
+    // ── ISSUE CHANNELS (with agent assignments) ──
+    if (type === 'issue' && agentDisplay) {
+      const isMentioned = message.mentions.users.has(client.user.id);
+      if (isMentioned) {
+        const controlEntry = findChannelByType(server, 'control');
+        if (controlEntry) {
+          const [controlId] = controlEntry;
+          const channel = client.channels.cache.get(controlId);
+          if (channel) {
+            await channel.send(
+              `📎 **Cross-reference from #${name}** (${server})\n` +
+              `**${message.author.username}** mentioned @agent regarding **${purpose}**:\n` +
+              `> ${message.content.substring(0, 200)}\n` +
+              `[Jump to message](${message.url})`
+            );
+          }
+        }
+        await message.reply(`👋 I see your message in **#${name}**. I'll respond in **#ai-work** on **${server}**.`);
+      } else {
+        console.log(`👁️ [${server}/#${name}] ${message.author.username}: ${message.content.substring(0, 100)}`);
+      }
+      return;
+    }
+
+    // ── EPHEMERAL / UNCATEGORIZED ──
+    console.log(`👁️ [${server}/#${name}] (${type}) ${message.author.username}: ${message.content.substring(0, 100)}`);
+  });
+}
+
+// ============================================================
+// EXPORTS
+// ============================================================
+module.exports = {
+  CONFIG,
+  activeWorks,
+  CHANNEL_MAP,
+  buildChannelMap,
+  scheduleRebuildChannelMap,
+  findChannelByType,
+  findChannelByName,
+  setupMessageHandler,
+  completeWork,
+  postToProjectLog,
+  postToIssueChannel
+};
