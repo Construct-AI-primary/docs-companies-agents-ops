@@ -78,160 +78,301 @@ const SERVER_MAP = {
 };
 
 // ============================================================
-// ISSUE CHANNEL REGISTRY — Hardcoded with agent assignments
+// AGENT_REGISTRY — Maps agent slugs to display names and details
+// ============================================================
+// This registry contains agents used in ISSUE_CHANNELS.
+// Source: agent-companies-core/agent-companies-paperclip/docs-paperclip/companies/*/agents/ directories
+const AGENT_REGISTRY = {
+  // DevForge AI agents
+  'orion-devforge-orchestrator': { display: 'Orion (DevForge AI)', type: 'orchestrator', role: 'Orion Orchestrator', company: 'DevForge AI', reportsTo: 'nexus-devforge-ceo' },
+  'nexus-devforge-ceo': { display: 'Nexus (DevForge AI)', type: 'ceo', role: 'Nexus CEO', company: 'DevForge AI', reportsTo: 'none' },
+  'codesmith-devforge-backend-engineer': { display: 'Codesmith (DevForge AI)', type: 'backend', role: 'Codesmith Backend Engineer', company: 'DevForge AI', reportsTo: 'nexus-devforge-ceo' },
+  'interface-devforge-api-integration': { display: 'Interface (DevForge AI)', type: 'integration', role: 'Interface API Integration', company: 'DevForge AI', reportsTo: 'nexus-devforge-ceo' },
+  'devcore-devforge-core-development': { display: 'Devcore (DevForge AI)', type: 'core', role: 'Devcore Core Development', company: 'DevForge AI', reportsTo: 'nexus-devforge-ceo' },
+  'reviewer-devforge-code-review-qa': { display: 'Reviewer (DevForge AI)', type: 'qa', role: 'Reviewer Code Review QA', company: 'DevForge AI', reportsTo: 'nexus-devforge-ceo' },
+  
+  // DomainForge AI agents
+  'design-domainforge-design': { display: 'Design (DomainForge AI)', type: 'design', role: 'Design', company: 'DomainForge AI', reportsTo: 'orion-domainforge-ceo' },
+  'procurement-domainforge-procurement-contracts': { display: 'Procurement Specialist (DomainForge AI)', type: 'procurement', role: 'Procurement Specialist', company: 'DomainForge AI', reportsTo: 'orion-domainforge-ceo' },
+  'contracts-pre-award-domainforge-contracts-pre-award': { display: 'Contracts Pre-Award (DomainForge AI)', type: 'procurement', role: 'Contracts Pre-Award', company: 'DomainForge AI', reportsTo: 'orion-domainforge-ceo' },
+  'orion-domainforge-ceo': { display: 'Orion (DomainForge AI)', type: 'ceo', role: 'Orion CEO', company: 'DomainForge AI', reportsTo: 'none' },
+  
+  // InfraForge AI agents
+  'database-infraforge-database-infrastructure': { display: 'Database Ops (InfraForge AI)', type: 'database', role: 'Database Ops', company: 'InfraForge AI', reportsTo: 'orchestrator-infraforge-ceo' },
+  'nimbus-infraforge-supabase-specialist': { display: 'Supabase Specialist (InfraForge AI)', type: 'database', role: 'Supabase Specialist', company: 'InfraForge AI', reportsTo: 'orchestrator-infraforge-ceo' },
+  'orchestrator-infraforge-ceo': { display: 'Orchestrator (InfraForge AI)', type: 'ceo', role: 'Orchestrator CEO', company: 'InfraForge AI', reportsTo: 'none' },
+  
+  // QualityForge AI agents
+  'governor-qualityforge-quality-director': { display: 'Governor (QualityForge AI)', type: 'quality', role: 'Governor Quality Director', company: 'QualityForge AI', reportsTo: 'apex-qualityforge-ceo' },
+  'apex-qualityforge-ceo': { display: 'Apex (QualityForge AI)', type: 'ceo', role: 'Apex CEO', company: 'QualityForge AI', reportsTo: 'none' },
+  
+  // MobileForge AI agents
+  'mobileforge-ai-mobile-specialist': { display: 'Mobile Specialist (MobileForge AI)', type: 'mobile', role: 'Mobile Specialist', company: 'MobileForge AI', reportsTo: 'ceo' },
+  
+  // VoiceForge AI agents
+  'voiceforge-ai-voice-specialist': { display: 'Voice Specialist (VoiceForge AI)', type: 'voice', role: 'Voice Specialist', company: 'VoiceForge AI', reportsTo: 'ceo' },
+  
+  // KnowledgeForge AI agents
+  'knowledgeforge-ai-analytics-specialist': { display: 'Analytics Specialist (KnowledgeForge AI)', type: 'analytics', role: 'Analytics Specialist', company: 'KnowledgeForge AI', reportsTo: 'ceo' },
+  
+  // PaperclipForge AI agents
+  'paperclipforge-ai-automation-specialist': { display: 'Automation Specialist (PaperclipForge AI)', type: 'automation', role: 'Automation Specialist', company: 'PaperclipForge AI', reportsTo: 'ceo' },
+  
+  // MeasureForge AI agents
+  'measureforge-ai-measurement-specialist': { display: 'Measurement Specialist (MeasureForge AI)', type: 'measurement', role: 'Measurement Specialist', company: 'MeasureForge AI', reportsTo: 'ceo' },
+  'dataforge-devforge-data-transformation': { display: 'Dataforge Devforge Data (Devforge AI)', type: 'general', role: 'Dataforge Data Transformation' },
+  'dbat-testing-qualityforge': { display: 'Dbat Testing (Qualityforge AI)', type: 'testing', role: 'Dbat Testing' },
+  'dealmaker-devforge-sales-negotiation': { display: 'Dealmaker Devforge Sales (Devforge AI)', type: 'general', role: 'Dealmaker Sales Negotiation' },
+  'debugger-debugger-specialist': { display: 'Debugger Debugger (Qualityforge AI)', type: 'general', role: 'Debugger Debugger Specialist' },
+  'design-domainforge-design': { display: 'Design Domainforge (Domainforge AI)', type: 'design', role: 'Design Domainforge Design' },
+  'dev-loopy-technical-creative': { display: 'Dev Loopy Technical (Loopy AI)', type: 'general', role: 'Dev Technical Creative' },
+  'devcore-devforge-core-development': { display: 'Devcore Devforge Core (Devforge AI)', type: 'general', role: 'Devcore Core Development' },
+  'diagnostics-diagnostics-specialist': { display: 'Diagnostics Diagnostics (Qualityforge AI)', type: 'general', role: 'Diagnostics Diagnostics Specialist' },
+  'director-project-domainforge-director-project': { display: 'Director Project Domainforge Director (Domainforge AI)', type: 'general', role: 'Director Project Director Project' },
+  'directors-domainforge-directors': { display: 'Directors Domainforge (Domainforge AI)', type: 'general', role: 'Directors Domainforge Directors' },
+  'document-control-domainforge-document-control': { display: 'Document Control Domainforge Document (Domainforge AI)', type: 'general', role: 'Document Control Document Control' },
+  'documenter-qualityforge-documentation-specialist': { display: 'Documenter Qualityforge Documentation (Qualityforge AI)', type: 'testing', role: 'Documenter Documentation Specialist' },
+  'e2e-qualityforge-end-to-end-testing': { display: 'E2e Qualityforge End To End (Qualityforge AI)', type: 'testing', role: 'E2e End To End Testing' },
+  'electrical-engineering-domainforge-electrical-engineering': { display: 'Electrical Engineering Domainforge Electrical (Domainforge AI)', type: 'general', role: 'Electrical Engineering Electrical Engineering' },
+  'engineering-director-domainforge-engineering-director': { display: 'Engineering Director Domainforge Engineering (Domainforge AI)', type: 'general', role: 'Engineering Director Engineering Director' },
+  'enhancer-promptforge-advanced-innovation': { display: 'Enhancer Promptforge Advanced (Promptforge AI)', type: 'general', role: 'Enhancer Advanced Innovation' },
+  'environmental-domainforge-environmental': { display: 'Environmental Domainforge (Domainforge AI)', type: 'general', role: 'Environmental Environmental' },
+  'ethics-domainforge-ethics': { display: 'Ethics Domainforge (Domainforge AI)', type: 'general', role: 'Ethics Domainforge Ethics' },
+  'execforge-ai-automationengineer': { display: 'Execforge Ai (Execforge AI)', type: 'general', role: 'Execforge Ai Automationengineer' },
+  'execforge-ai-chiefofstaff': { display: 'Execforge Ai (Execforge AI)', type: 'general', role: 'Execforge Ai Chiefofstaff' },
+  'execforge-ai-communicationsmanager': { display: 'Execforge Ai (Execforge AI)', type: 'general', role: 'Execforge Ai Communicationsmanager' },
+  'execforge-ai-datamanager': { display: 'Execforge Ai (Execforge AI)', type: 'general', role: 'Execforge Ai Datamanager' },
+  'execforge-ai-intelligenceanalyst': { display: 'Execforge Ai (Execforge AI)', type: 'general', role: 'Execforge Ai Intelligenceanalyst' },
+  'execforge-ai-knowledgecurator': { display: 'Execforge Ai (Execforge AI)', type: 'general', role: 'Execforge Ai Knowledgecurator' },
+  'execforge-ai-performanceanalyst': { display: 'Execforge Ai (Execforge AI)', type: 'general', role: 'Execforge Ai Performanceanalyst' },
+  'execforge-ai-personalassistant': { display: 'Execforge Ai (Execforge AI)', type: 'general', role: 'Execforge Ai Personalassistant' },
+  'execforge-ai-presentationspecialis': { display: 'Execforge Ai (Execforge AI)', type: 'general', role: 'Execforge Ai Presentationspecialis' },
+  'execforge-ai-projectmanager': { display: 'Execforge Ai (Execforge AI)', type: 'general', role: 'Execforge Ai Projectmanager' },
+  'execforge-ai-strategicassistant': { display: 'Execforge Ai (Execforge AI)', type: 'general', role: 'Execforge Ai Strategicssistant' },
+  'execforge-ai-strategicplanner': { display: 'Execforge Ai (Execforge AI)', type: 'general', role: 'Execforge Ai Strategicsplanner' },
+  'execforge-ai-strategyconsultant': { display: 'Execforge Ai (Execforge AI)', type: 'general', role: 'Execforge Ai Strategyconsultant' },
+  'execforge-ai-taskcoordinator': { display: 'Execforge Ai (Execforge AI)', type: 'general', role: 'Execforge Ai Taskcoordinator' },
+  'execforge-ai-workfloworchestrator': { display: 'Execforge Ai (Execforge AI)', type: 'general', role: 'Execforge Ai Workfloworchestrator' },
+  'fixer-devforge-bug-fixing': { display: 'Fixer Devforge Bug (Devforge AI)', type: 'backend', role: 'Fixer Bug Fixing' },
+  'fixer-qualityforge-bug-fixing-specialist': { display: 'Fixer Qualityforge Bug (Qualityforge AI)', type: 'bugfix', role: 'Fixer Bug Fixing Specialist' },
+  'forge-devforge-system-architecture': { display: 'Forge Devforge System (Devforge AI)', type: 'architecture', role: 'Forge System Architecture Design' },
+  'gatekeeper-devforge-access-control': { display: 'Gatekeeper Devforge Access (Devforge AI)', type: 'security', role: 'Gatekeeper Access Control' },
+  'governor-qualityforge-quality-director': { display: 'Governer Qualityforge Quality (Qualityforge AI)', type: 'director', role: 'Governer Quality Director' },
+  'guardian-devforge-threat-protection': { display: 'Guardian Devforge Threat (Devforge AI)', type: 'security', role: 'Guardian Threat Protection' },
+  'infraforge-ai-databasemanager': { display: 'Infraforge Ai (Infraforge AI)', type: 'general', role: 'Infraforge Ai Databasemanager' },
+  'infraforge-ai-deploymentengineer': { display: 'Infraforge Ai (Infraforge AI)', type: 'general', role: 'Infraforge Ai Deploymentengineer' },
+  'infraforge-ai-infrastructureengineer': { display: 'Infraforge Ai (Infraforge AI)', type: 'general', role: 'Infraforge Ai Infrastructureengineer' },
+  'infraforge-ai-monitoringengineer': { display: 'Infraforge Ai (Infraforge AI)', type: 'general', role: 'Infraforge Ai Monitoringengineer' },
+  'infraforge-ai-securityengineer': { display: 'Infraforge Ai (Infraforge AI)', type: 'general', role: 'Infraforge Ai Securityengineer' },
+  'infraforge-ai-systemsadministrator': { display: 'Infraforge Ai (Infraforge AI)', type: 'general', role: 'Infraforge Ai Systemsadministrator' },
+  'insight-devforge-business-intelligence': { display: 'Insight Devforge Business (Devforge AI)', type: 'general', role: 'Insight Business Intelligence' },
+  'integrateforge-ai-integration-specialist': { display: 'Integrate Integrateforge (Integrateforge AI)', type: 'integration', role: 'Integrate Integrateforge Integration Specialist' },
+  'interface-devforge-api-integration': { display: 'Interface Devforge Api (Devforge AI)', type: 'integration', role: 'Interface Api Integration' },
+  'knowledgeforge-ai-analytics-specialist': { display: 'Analytics Knowledgeforge (Knowledgeforge AI)', type: 'analytics', role: 'Analytics Knowledgeforge Analytics Specialist' },
+  'knowledgeforge-ai-knowledgecurator': { display: 'Knowledgecurator Knowledgeforge (Knowledgeforge AI)', type: 'general', role: 'Knowledgecurator Knowledgeforge Knowledgecurator' },
+  'librarian-devforge-knowledge-management': { display: 'Librarian Devforge Knowledge (Devforge AI)', type: 'general', role: 'Librarian Knowledge Management' },
+  'loopy-ai-deepresearch': { display: 'Loopy Ai (Loopy AI)', type: 'general', role: 'Loopy Ai Deepresearch' },
+  'loopy-ai-technicalcreative': { display: 'Loopy Ai (Loopy AI)', type: 'general', role: 'Loopy Ai Technicalcreative' },
+  'measureforge-ai-cadintegration': { display: 'Measureforge Ai (Measureforge AI)', type: 'general', role: 'Measureforge Ai Cadintegration' },
+  'measureforge-ai-civilengineering': { display: 'Measureforge Ai (Measureforge AI)', type: 'general', role: 'Measureforge Ai Civilengineering' },
+  'measureforge-ai-elementmeasurement': { display: 'Measureforge Ai (Measureforge AI)', type: 'general', role: 'Measureforge Ai Elementmeasurement' },
+  'measureforge-ai-measurement-specialist': { display: 'Measurement Measureforge (Measureforge AI)', type: 'measurement', role: 'Measurement Measureforge Measurement Specialist' },
+  'measureforge-ai-postaward': { display: 'Measureforge Ai (Measureforge AI)', type: 'general', role: 'Measureforge Ai Postaward' },
+  'measureforge-ai-preaward': { display: 'Measureforge Ai (Measureforge AI)', type: 'general', role: 'Measureforge Ai Preaward' },
+  'measureforge-ai-standardscompliance': { display: 'Measureforge Ai (Measureforge AI)', type: 'general', role: 'Measureforge Ai Standardscompliance' },
+  'measureforge-ai-visualintelligence': { display: 'Measureforge Ai (Measureforge AI)', type: 'general', role: 'Measureforge Ai Visualintelligence' },
+  'mentor-devforge-team-development': { display: 'Mentor Devforge Team (Devforge AI)', type: 'general', role: 'Mentor Team Development' },
+  'merchant-devforge-commerce-operations': { display: 'Merchant Devforge Commerce (Devforge AI)', type: 'general', role: 'Merchant Commerce Operations' },
+  'mobileforge-ai-mobile-specialist': { display: 'Mobile Mobileforge (Mobileforge AI)', type: 'mobile', role: 'Mobile Mobileforge Mobile Specialist' },
+  'navigator-devforge-data-discovery': { display: 'Navigator Devforge Data (Devforge AI)', type: 'general', role: 'Navigator Data Discovery' },
+  'nexus-devforge-ceo': { display: 'Nexus Devforge Ceo (Devforge AI)', type: 'ceo', role: 'Nexus Ceo Strategic Direction' },
+  'nimbus-infraforge-supabase-specialist': { display: 'Nimbus Infraforge Supabase (Infraforge AI)', type: 'database', role: 'Nimbus Supabase Specialist' },
+  'nova-devforge-product-launches': { display: 'Nova Devforge Product (Devforge AI)', type: 'general', role: 'Nova Product Launches' },
+  'openclawforge-ai-orchestrator': { display: 'Openclawforge Ai (Openclawforge AI)', type: 'general', role: 'Openclawforge Ai Orchestrator' },
+  'oracle-devforge-predictive-analytics': { display: 'Oracle Devforge Predictive (Devforge AI)', type: 'general', role: 'Oracle Predictive Analytics' },
+  'orion-devforge-orchestrator': { display: 'Orion Devforge Orchestrator (Devforge AI)', type: 'orchestrator', role: 'Orion Orchestrator Coordination' },
+  'orion-domainforge-ceo': { display: 'Orion Domainforge Ceo (Domainforge AI)', type: 'ceo', role: 'Orion Ceo Strategic Direction' },
+  'orchestrator-infraforge-ceo': { display: 'Orchestrator Infraforge Ceo (Infraforge AI)', type: 'ceo', role: 'Orchestrator Ceo Orchestration' },
+  'paperclipforge-ai-automation-specialist': { display: 'Automation Paperclipforge (Paperclipforge AI)', type: 'automation', role: 'Automation Paperclipforge Automation Specialist' },
+  'pathfinder-devforge-opportunity-identification': { display: 'Pathfinder Devforge Opportinity (Devforge AI)', type: 'general', role: 'Pathfinder Opportinity Identification' },
+  'postgres-infraforge-postgresql': { display: 'Postgres Infraforge Postgresql (Infraforge AI)', type: 'database', role: 'Postgres Postgresql Management' },
+  'principle-domainforge-principle': { display: 'Principle Domainforge (Domainforge AI)', type: 'general', role: 'Principle Domainforge Principle' },
+  'promptsmith-devforge-prompt-engineering': { display: 'PromptSmith Devforge Prompt (Devforge AI)', type: 'prompt', role: 'PromptSmith Prompt Engineering' },
+  'pulse-devforge-realtime-monitoring': { display: 'Pulse Devforge Realtime (Devforge AI)', type: 'general', role: 'Pulse Realtime Monitoring' },
+  'render-deployment-infraforge-specialist': { display: 'Render Infraforge Deployment (Infraforge AI)', type: 'deployment', role: 'Render Deployment Infrastructure' },
+  'reviewer-devforge-code-review-qa': { display: 'Reviewer Devforge Code (Devforge AI)', type: 'qa', role: 'Reviewer Code Review Qa' },
+  'reviewer-qualityforge-code-reviewer': { display: 'Reviewer Qualityforge Code (Qualityforge AI)', type: 'qa', role: 'Reviewer Code Reviewer' },
+  'saasforge-ai-saas-specialist': { display: 'Saas Saasforge (Saasforge AI)', type: 'saas', role: 'Saas Saasforge Saas Specialist' },
+  'schema-devforge-data-schema-management': { display: 'Schema Devforge Data (Devforge AI)', type: 'general', role: 'Schema Data Schema Management' },
+  'scout-devforge-competitive-intelligence': { display: 'Scout Devforge Competitive (Devforge AI)', type: 'general', role: 'Scout Competitive Intelligence' },
+  'sentinel-devforge-data-quality-monitoring': { display: 'Sentinel Devforge Data (Devforge AI)', type: 'monitoring', role: 'Sentinel Data Quality Monitoring' },
+  'sentinelx-devforge-advanced-monitoring': { display: 'Sentinelx Devforge Advanced (Devforge AI)', type: 'monitoring', role: 'Sentinelx Advanced Monitoring' },
+  'sql-query-devforge': { display: 'Sql Query Devforge (Devforge AI)', type: 'database', role: 'Sql Query Devforge' },
+  'storycraft-devforge-product-storytelling': { display: 'Storycraft Devforge Product (Devforge AI)', type: 'general', role: 'Storycraft Product Storytelling' },
+  'strategos-devforge-strategic-planning': { display: 'Strategos Devforge Strategic (Devforge AI)', type: 'general', role: 'Strategos Strategic Planning' },
+  'stream-devforge-data-streaming': { display: 'Stream Devforge Data (Devforge AI)', type: 'general', role: 'Stream Data Streaming' },
+  'synth-synthetic-data': { display: 'Synth Devforge Synthetic (Devforge AI)', type: 'general', role: 'Synth Synthetic Data' },
+  'vector-vector-processing': { display: 'Vector Devforge Vector (Devforge AI)', type: 'general', role: 'Vector Vector Processing' },
+  'voiceforge-ai-voice-specialist': { display: 'Voice Specialist Voiceforge (Voiceforge AI)', type: 'voice', role: 'Voice Specialist Voice Interfaces' },
+  'voyager-devforge-market-exploration': { display: 'Voyager Devforge Market (Devforge AI)', type: 'general', role: 'Voyager Market Exploration' },
+  'watchtower-devforge-security-oversight': { display: 'Watchtower Devforge Security (Devforge AI)', type: 'security', role: 'Watchtower Security Oversight' },
+};
+
+// ============================================================
+// ISSUE CHANNEL REGISTRY — Hardcoded with agent assignments (using agentSlug)
 // ============================================================
 const ISSUE_CHANNELS = {
   // VOICE-COMM
-  '1500106852615192626': { server: 'VOICE-COMM', name: 'devforge-voicecomm-core-interface', agent: 'DevForge AI', purpose: 'VOICE-COMM-001' },
-  '1500106928423178417': { server: 'VOICE-COMM', name: 'devforge-voicecomm-hitl-approval', agent: 'DevForge AI', purpose: 'VOICE-COMM-002' },
-  '1500107082647470132': { server: 'VOICE-COMM', name: 'devforge-voicecomm-document-attach', agent: 'DevForge AI', purpose: 'VOICE-COMM-003' },
-  '1500107182299938966': { server: 'VOICE-COMM', name: 'devforge-voicecomm-audit-logging', agent: 'DevForge AI', purpose: 'VOICE-COMM-004' },
-  '1500107298314649732': { server: 'VOICE-COMM', name: 'mobileforge-voicecomm-mobile-call', agent: 'MobileForge AI', purpose: 'VOICE-COMM-101' },
-  '1500107364370616471': { server: 'VOICE-COMM', name: 'mobileforge-voicecomm-mobile-docs', agent: 'MobileForge AI', purpose: 'VOICE-COMM-102' },
+  '1500106852615192626': { server: 'VOICE-COMM', name: 'devforge-voicecomm-core-interface', agentSlug: 'orion-devforge-orchestrator', purpose: 'VOICE-COMM-001' },
+  '1500106928423178417': { server: 'VOICE-COMM', name: 'devforge-voicecomm-hitl-approval', agentSlug: 'orion-devforge-orchestrator', purpose: 'VOICE-COMM-002' },
+  '1500107082647470132': { server: 'VOICE-COMM', name: 'devforge-voicecomm-document-attach', agentSlug: 'orion-devforge-orchestrator', purpose: 'VOICE-COMM-003' },
+  '1500107182299938966': { server: 'VOICE-COMM', name: 'devforge-voicecomm-audit-logging', agentSlug: 'orion-devforge-orchestrator', purpose: 'VOICE-COMM-004' },
+  '1500107298314649732': { server: 'VOICE-COMM', name: 'mobileforge-voicecomm-mobile-call', agentSlug: 'mobileforge-ai-mobile-specialist', purpose: 'VOICE-COMM-101' },
+  '1500107364370616471': { server: 'VOICE-COMM', name: 'mobileforge-voicecomm-mobile-docs', agentSlug: 'mobileforge-ai-mobile-specialist', purpose: 'VOICE-COMM-102' },
   // PROCURE-TEST
-  '1500118995213484053': { server: 'PROCURE-TEST', name: 'devforge-procure-foundation', agent: 'DevForge AI', purpose: 'PROCURE-001' },
-  '1500118997558104157': { server: 'PROCURE-TEST', name: 'infraforge-procure-database', agent: 'InfraForge AI', purpose: 'PROCURE-002' },
-  '1500118999630090272': { server: 'PROCURE-TEST', name: 'devforge-procure-agents', agent: 'DevForge AI', purpose: 'PROCURE-003' },
-  '1500119002138148916': { server: 'PROCURE-TEST', name: 'devforge-procure-upserts', agent: 'DevForge AI', purpose: 'PROCURE-004' },
-  '1500119004180779043': { server: 'PROCURE-TEST', name: 'devforge-procure-workspace', agent: 'DevForge AI', purpose: 'PROCURE-005' },
-  '1500119007066456134': { server: 'PROCURE-TEST', name: 'devforge-procure-chatbot', agent: 'DevForge AI', purpose: 'PROCURE-006' },
-  '1500119009134121081': { server: 'PROCURE-TEST', name: 'domainforge-procure-workflow', agent: 'DomainForge AI', purpose: 'PROCURE-007' },
-  '1500119011252371538': { server: 'PROCURE-TEST', name: 'domainforge-procure-templates', agent: 'DomainForge AI', purpose: 'PROCURE-008' },
-  '1500119013282283661': { server: 'PROCURE-TEST', name: 'domainforge-procure-suppliers', agent: 'DomainForge AI', purpose: 'PROCURE-009' },
-  '1500119015509463120': { server: 'PROCURE-TEST', name: 'domainforge-procure-tenders', agent: 'DomainForge AI', purpose: 'PROCURE-010' },
-  '1500119017560739890': { server: 'PROCURE-TEST', name: 'infraforge-procure-integrations', agent: 'InfraForge AI', purpose: 'PROCURE-011' },
-  '1500119020450349076': { server: 'PROCURE-TEST', name: 'devforge-procure-compliance', agent: 'DevForge AI', purpose: 'PROCURE-012' },
-  '1500119022367412284': { server: 'PROCURE-TEST', name: 'devforge-procure-delegation', agent: 'DevForge AI', purpose: 'PROCURE-013' },
-  '1500119024732733540': { server: 'PROCURE-TEST', name: 'devforge-procure-feedback', agent: 'DevForge AI', purpose: 'PROCURE-014' },
-  '1500119027371216990': { server: 'PROCURE-TEST', name: 'devforge-procure-signoff', agent: 'DevForge AI', purpose: 'PROCURE-015' },
-  '1500119029359316992': { server: 'PROCURE-TEST', name: 'qualityforge-procure-regression', agent: 'QualityForge AI', purpose: 'PROCURE-016' },
+  '1500118995213484053': { server: 'PROCURE-TEST', name: 'devforge-procure-foundation', agentSlug: 'devcore-devforge-core-development', purpose: 'PROCURE-001' },
+  '1500118997558104157': { server: 'PROCURE-TEST', name: 'infraforge-procure-database', agentSlug: 'database-infraforge-database-infrastructure', purpose: 'PROCURE-002' },
+  '1500118999630090272': { server: 'PROCURE-TEST', name: 'devforge-procure-agents', agentSlug: 'codesmith-devforge-backend-engineer', purpose: 'PROCURE-003' },
+  '1500119002138148916': { server: 'PROCURE-TEST', name: 'devforge-procure-upserts', agentSlug: 'codesmith-devforge-backend-engineer', purpose: 'PROCURE-004' },
+  '1500119004180779043': { server: 'PROCURE-TEST', name: 'devforge-procure-workspace', agentSlug: 'interface-devforge-api-integration', purpose: 'PROCURE-005' },
+  '1500119007066456134': { server: 'PROCURE-TEST', name: 'devforge-procure-chatbot', agentSlug: 'interface-devforge-api-integration', purpose: 'PROCURE-006' },
+  '1500119009134121081': { server: 'PROCURE-TEST', name: 'domainforge-procure-workflow', agentSlug: 'design-domainforge-design', purpose: 'PROCURE-007' },
+  '1500119011252371538': { server: 'PROCURE-TEST', name: 'domainforge-procure-templates', agentSlug: 'design-domainforge-design', purpose: 'PROCURE-008' },
+  '1500119013282283661': { server: 'PROCURE-TEST', name: 'domainforge-procure-suppliers', agentSlug: 'procurement-domainforge-procurement-contracts', purpose: 'PROCURE-009' },
+  '1500119015509463120': { server: 'PROCURE-TEST', name: 'domainforge-procure-tenders', agentSlug: 'contracts-pre-award-domainforge-contracts-pre-award', purpose: 'PROCURE-010' },
+  '1500119017560739890': { server: 'PROCURE-TEST', name: 'infraforge-procure-integrations', agentSlug: 'nimbus-infraforge-supabase-specialist', purpose: 'PROCURE-011' },
+  '1500119020450349076': { server: 'PROCURE-TEST', name: 'devforge-procure-compliance', agentSlug: 'reviewer-devforge-code-review-qa', purpose: 'PROCURE-012' },
+  '1500119022367412284': { server: 'PROCURE-TEST', name: 'devforge-procure-delegation', agentSlug: 'orion-devforge-orchestrator', purpose: 'PROCURE-013' },
+  '1500119024732733540': { server: 'PROCURE-TEST', name: 'devforge-procure-feedback', agentSlug: 'orion-devforge-orchestrator', purpose: 'PROCURE-014' },
+  '1500119027371216990': { server: 'PROCURE-TEST', name: 'devforge-procure-signoff', agentSlug: 'reviewer-devforge-code-review-qa', purpose: 'PROCURE-015' },
+  '1500119029359316992': { server: 'PROCURE-TEST', name: 'qualityforge-procure-regression', agentSlug: 'governor-qualityforge-quality-director', purpose: 'PROCURE-016' },
   // PROCUREMENT-BIDDING
-  '1500119413083602987': { server: 'PROCUREMENT-BIDDING', name: 'devforge-btnd-platform', agent: 'DevForge AI', purpose: 'BTND-PLATFORM' },
-  '1500119415554048174': { server: 'PROCUREMENT-BIDDING', name: 'paperclipforge-proc-001', agent: 'PaperclipForge AI', purpose: 'PROC-001' },
-  '1500119418058051717': { server: 'PROCUREMENT-BIDDING', name: 'paperclipforge-proc-amend', agent: 'PaperclipForge AI', purpose: 'PROC-AMEND' },
-  '1500119420557725888': { server: 'PROCUREMENT-BIDDING', name: 'knowledgeforge-proc-analytics', agent: 'KnowledgeForge AI', purpose: 'PROC-ANALYTICS' },
-  '1500119422369796192': { server: 'PROCUREMENT-BIDDING', name: 'qualityforge-proc-audit', agent: 'QualityForge AI', purpose: 'PROC-AUDIT' },
-  '1500119424722800810': { server: 'PROCUREMENT-BIDDING', name: 'paperclipforge-proc-budget', agent: 'PaperclipForge AI', purpose: 'PROC-BUDGET' },
-  '1500119426652049438': { server: 'PROCUREMENT-BIDDING', name: 'paperclipforge-proc-emerg', agent: 'PaperclipForge AI', purpose: 'PROC-EMERG' },
-  '1500119428820631722': { server: 'PROCUREMENT-BIDDING', name: 'knowledgeforge-proc-intel', agent: 'KnowledgeForge AI', purpose: 'PROC-INTEL' },
-  '1500119431840403579': { server: 'PROCUREMENT-BIDDING', name: 'paperclipforge-proc-inv', agent: 'PaperclipForge AI', purpose: 'PROC-INV' },
-  '1500119433970974960': { server: 'PROCUREMENT-BIDDING', name: 'paperclipforge-proc-long', agent: 'PaperclipForge AI', purpose: 'PROC-LONG' },
-  '1500119436190023720': { server: 'PROCUREMENT-BIDDING', name: 'qualityforge-proc-ncr', agent: 'QualityForge AI', purpose: 'PROC-NCR' },
-  '1500119438295302234': { server: 'PROCUREMENT-BIDDING', name: 'devforge-proc-order', agent: 'DevForge AI', purpose: 'PROC-ORDER' },
-  '1500119439834611723': { server: 'PROCUREMENT-BIDDING', name: 'paperclipforge-proc-service', agent: 'PaperclipForge AI', purpose: 'PROC-SERVICE' },
-  '1500119442762371203': { server: 'PROCUREMENT-BIDDING', name: 'paperclipforge-proc-supp', agent: 'PaperclipForge AI', purpose: 'PROC-SUPP' },
-  '1500119445601915091': { server: 'PROCUREMENT-BIDDING', name: 'paperclipforge-proc-track', agent: 'PaperclipForge AI', purpose: 'PROC-TRACK' },
-  '1500119447749529681': { server: 'PROCUREMENT-BIDDING', name: 'paperclipforge-proc-vetting', agent: 'PaperclipForge AI', purpose: 'PROC-VETTING' },
-  '1500119449758334997': { server: 'PROCUREMENT-BIDDING', name: 'voiceforge-proc-voice', agent: 'VoiceForge AI', purpose: 'PROC-VOICE' },
+  '1500119413083602987': { server: 'PROCUREMENT-BIDDING', name: 'devforge-btnd-platform', agentSlug: 'orion-devforge-orchestrator', purpose: 'BTND-PLATFORM' },
+  '1500119415554048174': { server: 'PROCUREMENT-BIDDING', name: 'paperclipforge-proc-001', agentSlug: 'paperclipforge-ai-automation-specialist', purpose: 'PROC-001' },
+  '1500119418051717': { server: 'PROCUREMENT-BIDDING', name: 'paperclipforge-proc-amend', agentSlug: 'paperclipforge-ai-automation-specialist', purpose: 'PROC-AMEND' },
+  '1500119420557725888': { server: 'PROCUREMENT-BIDDING', name: 'knowledgeforge-proc-analytics', agentSlug: 'knowledgeforge-ai-analytics-specialist', purpose: 'PROC-ANALYTICS' },
+  '1500119422369796192': { server: 'PROCUREMENT-BIDDING', name: 'qualityforge-proc-audit', agentSlug: 'governor-qualityforge-quality-director', purpose: 'PROC-AUDIT' },
+  '1500119424722800810': { server: 'PROCUREMENT-BIDDING', name: 'paperclipforge-proc-budget', agentSlug: 'paperclipforge-ai-automation-specialist', purpose: 'PROC-BUDGET' },
+  '1500119426652049438': { server: 'PROCUREMENT-BIDDING', name: 'paperclipforge-proc-emerg', agentSlug: 'paperclipforge-ai-automation-specialist', purpose: 'PROC-EMERG' },
+  '1500119428820631722': { server: 'PROCUREMENT-BIDDING', name: 'knowledgeforge-proc-intel', agentSlug: 'knowledgeforge-ai-analytics-specialist', purpose: 'PROC-INTEL' },
+  '1500119431840403579': { server: 'PROCUREMENT-BIDDING', name: 'paperclipforge-proc-inv', agentSlug: 'paperclipforge-ai-automation-specialist', purpose: 'PROC-INV' },
+  '1500119433970974960': { server: 'PROCUREMENT-BIDDING', name: 'paperclipforge-proc-long', agentSlug: 'paperclipforge-ai-automation-specialist', purpose: 'PROC-LONG' },
+  '1500119436190023720': { server: 'PROCUREMENT-BIDDING', name: 'qualityforge-proc-ncr', agentSlug: 'governor-qualityforge-quality-director', purpose: 'PROC-NCR' },
+  '1500119438295302234': { server: 'PROCUREMENT-BIDDING', name: 'devforge-proc-order', agentSlug: 'orion-devforge-orchestrator', purpose: 'PROC-ORDER' },
+  '1500119439834611723': { server: 'PROCUREMENT-BIDDING', name: 'paperclipforge-proc-service', agentSlug: 'paperclipforge-ai-automation-specialist', purpose: 'PROC-SERVICE' },
+  '1500119442762371203': { server: 'PROCUREMENT-BIDDING', name: 'paperclipforge-proc-supp', agentSlug: 'paperclipforge-ai-automation-specialist', purpose: 'PROC-SUPP' },
+  '1500119445601915091': { server: 'PROCUREMENT-BIDDING', name: 'paperclipforge-proc-track', agentSlug: 'paperclipforge-ai-automation-specialist', purpose: 'PROC-TRACK' },
+  '1500119447749529681': { server: 'PROCUREMENT-BIDDING', name: 'paperclipforge-proc-vetting', agentSlug: 'paperclipforge-ai-automation-specialist', purpose: 'PROC-VETTING' },
+  '1500119449758334997': { server: 'PROCUREMENT-BIDDING', name: 'voiceforge-proc-voice', agentSlug: 'voiceforge-ai-voice-specialist', purpose: 'PROC-VOICE' },
   // SAFETY
-  '1500118682368475167': { server: 'SAFETY', name: 'voiceforge-safety-voice', agent: 'VoiceForge AI', purpose: 'SAFE-VOICE' },
-  '1500118685006954537': { server: 'SAFETY', name: 'devforge-safety-contractor', agent: 'DevForge AI', purpose: 'SAFETY-CONTRACTOR' },
-  '1500118687791845507': { server: 'SAFETY', name: 'devforge-safety-emergency', agent: 'DevForge AI', purpose: 'SAFETY-EMERGENCY' },
-  '1500118689943523500': { server: 'SAFETY', name: 'devforge-safety-hazard', agent: 'DevForge AI', purpose: 'SAFETY-HAZARD' },
-  '1500118692162437221': { server: 'SAFETY', name: 'devforge-safety-health', agent: 'DevForge AI', purpose: 'SAFETY-HEALTH' },
-  '1500118694406258769': { server: 'SAFETY', name: 'devforge-safety-incident', agent: 'DevForge AI', purpose: 'SAFETY-INCIDENT' },
-  '1500118697111588945': { server: 'SAFETY', name: 'devforge-safety-inspection', agent: 'DevForge AI', purpose: 'SAFETY-INSPECTION' },
-  '1500118698965598208': { server: 'SAFETY', name: 'devforge-safety-ppe', agent: 'DevForge AI', purpose: 'SAFETY-PPE' },
-  '1500118701242974349': { server: 'SAFETY', name: 'knowledgeforge-safety-research', agent: 'KnowledgeForge AI', purpose: 'SAFETY-RESEARCH-ENHANCEMENT' },
-  '1500118703612760225': { server: 'SAFETY', name: 'devforge-safety-training', agent: 'DevForge AI', purpose: 'SAFETY-TRAINING' },
+  '1500118682368475167': { server: 'SAFETY', name: 'voiceforge-safety-voice', agentSlug: 'voiceforge-ai-voice-specialist', purpose: 'SAFE-VOICE' },
+  '1500118685006954537': { server: 'SAFETY', name: 'devforge-safety-contractor', agentSlug: 'orion-devforge-orchestrator', purpose: 'SAFETY-CONTRACTOR' },
+  '1500118687791845507': { server: 'SAFETY', name: 'devforge-safety-emergency', agentSlug: 'orion-devforge-orchestrator', purpose: 'SAFETY-EMERGENCY' },
+  '1500118689943523500': { server: 'SAFETY', name: 'devforge-safety-hazard', agentSlug: 'orion-devforge-orchestrator', purpose: 'SAFETY-HAZARD' },
+  '1500118692162437221': { server: 'SAFETY', name: 'devforge-safety-health', agentSlug: 'orion-devforge-orchestrator', purpose: 'SAFETY-HEALTH' },
+  '1500118694406258769': { server: 'SAFETY', name: 'devforge-safety-incident', agentSlug: 'orion-devforge-orchestrator', purpose: 'SAFETY-INCIDENT' },
+  '1500118697111588945': { server: 'SAFETY', name: 'devforge-safety-inspection', agentSlug: 'orion-devforge-orchestrator', purpose: 'SAFETY-INSPECTION' },
+  '1500118698965598208': { server: 'SAFETY', name: 'devforge-safety-ppe', agentSlug: 'orion-devforge-orchestrator', purpose: 'SAFETY-PPE' },
+  '1500118701242974349': { server: 'SAFETY', name: 'knowledgeforge-safety-research', agentSlug: 'knowledgeforge-ai-analytics-specialist', purpose: 'SAFETY-RESEARCH-ENHANCEMENT' },
+  '1500118703612760225': { server: 'SAFETY', name: 'devforge-safety-training', agentSlug: 'orion-devforge-orchestrator', purpose: 'SAFETY-TRAINING' },
   // ELEC-TEST
-  '1500118034470404136': { server: 'ELEC-TEST', name: 'devforge-elec-test-foundation', agent: 'DevForge AI', purpose: 'ELEC-TEST-001' },
-  '1500118036949237860': { server: 'ELEC-TEST', name: 'infraforge-elec-test-database', agent: 'InfraForge AI', purpose: 'ELEC-TEST-002' },
-  '1500118039415488714': { server: 'ELEC-TEST', name: 'devforge-elec-test-agents', agent: 'DevForge AI', purpose: 'ELEC-TEST-003' },
-  '1500118041533354084': { server: 'ELEC-TEST', name: 'devforge-elec-test-upserts', agent: 'DevForge AI', purpose: 'ELEC-TEST-004' },
-  '1500118043798536356': { server: 'ELEC-TEST', name: 'devforge-elec-test-workspace', agent: 'DevForge AI', purpose: 'ELEC-TEST-005' },
-  '1500118045899624590': { server: 'ELEC-TEST', name: 'devforge-elec-test-chatbot', agent: 'DevForge AI', purpose: 'ELEC-TEST-006' },
-  '1500118048013549722': { server: 'ELEC-TEST', name: 'domainforge-elec-test-workflow', agent: 'DomainForge AI', purpose: 'ELEC-TEST-007' },
-  '1500118050584793260': { server: 'ELEC-TEST', name: 'domainforge-elec-test-templates', agent: 'DomainForge AI', purpose: 'ELEC-TEST-008' },
-  '1500118052883271760': { server: 'ELEC-TEST', name: 'domainforge-elec-test-suppliers', agent: 'DomainForge AI', purpose: 'ELEC-TEST-009' },
-  '1500118054762451074': { server: 'ELEC-TEST', name: 'domainforge-elec-test-tenders', agent: 'DomainForge AI', purpose: 'ELEC-TEST-010' },
-  '1500118057270513725': { server: 'ELEC-TEST', name: 'infraforge-elec-test-integrations', agent: 'InfraForge AI', purpose: 'ELEC-TEST-011' },
-  '1500118059610804305': { server: 'ELEC-TEST', name: 'devforge-elec-test-compliance', agent: 'DevForge AI', purpose: 'ELEC-TEST-012' },
-  '1500118061405966438': { server: 'ELEC-TEST', name: 'devforge-elec-test-delegation', agent: 'DevForge AI', purpose: 'ELEC-TEST-013' },
-  '1500118063599718522': { server: 'ELEC-TEST', name: 'devforge-elec-test-feedback', agent: 'DevForge AI', purpose: 'ELEC-TEST-014' },
-  '1500118065508257933': { server: 'ELEC-TEST', name: 'devforge-elec-test-signoff', agent: 'DevForge AI', purpose: 'ELEC-TEST-015' },
-  '1500118068444266536': { server: 'ELEC-TEST', name: 'qualityforge-elec-test-regression', agent: 'QualityForge AI', purpose: 'ELEC-TEST-016' },
+  '1500118034470404136': { server: 'ELEC-TEST', name: 'devforge-elec-test-foundation', agentSlug: 'devcore-devforge-core-development', purpose: 'ELEC-TEST-001' },
+  '1500118036949237860': { server: 'ELEC-TEST', name: 'infraforge-elec-test-database', agentSlug: 'database-infraforge-database-infrastructure', purpose: 'ELEC-TEST-002' },
+  '1500118039415488714': { server: 'ELEC-TEST', name: 'devforge-elec-test-agents', agentSlug: 'codesmith-devforge-backend-engineer', purpose: 'ELEC-TEST-003' },
+  '1500118041533354084': { server: 'ELEC-TEST', name: 'devforge-elec-test-upserts', agentSlug: 'codesmith-devforge-backend-engineer', purpose: 'ELEC-TEST-004' },
+  '1500118043798536356': { server: 'ELEC-TEST', name: 'devforge-elec-test-workspace', agentSlug: 'interface-devforge-api-integration', purpose: 'ELEC-TEST-005' },
+  '1500118045899624590': { server: 'ELEC-TEST', name: 'devforge-elec-test-chatbot', agentSlug: 'interface-devforge-api-integration', purpose: 'ELEC-TEST-006' },
+  '1500118048013549722': { server: 'ELEC-TEST', name: 'domainforge-elec-test-workflow', agentSlug: 'design-domainforge-design', purpose: 'ELEC-TEST-007' },
+  '1500118050584793260': { server: 'ELEC-TEST', name: 'domainforge-elec-test-templates', agentSlug: 'design-domainforge-design', purpose: 'ELEC-TEST-008' },
+  '1500118052883271760': { server: 'ELEC-TEST', name: 'domainforge-elec-test-suppliers', agentSlug: 'procurement-domainforge-procurement-contracts', purpose: 'ELEC-TEST-009' },
+  '1500118054762451074': { server: 'ELEC-TEST', name: 'domainforge-elec-test-tenders', agentSlug: 'contracts-pre-award-domainforge-contracts-pre-award', purpose: 'ELEC-TEST-010' },
+  '1500118057270513725': { server: 'ELEC-TEST', name: 'infraforge-elec-test-integrations', agentSlug: 'nimbus-infraforge-supabase-specialist', purpose: 'ELEC-TEST-011' },
+  '1500118059610804305': { server: 'ELEC-TEST', name: 'devforge-elec-test-compliance', agentSlug: 'reviewer-devforge-code-review-qa', purpose: 'ELEC-TEST-012' },
+  '1500118061405966438': { server: 'ELEC-TEST', name: 'devforge-elec-test-delegation', agentSlug: 'orion-devforge-orchestrator', purpose: 'ELEC-TEST-013' },
+  '1500118063599718522': { server: 'ELEC-TEST', name: 'devforge-elec-test-feedback', agentSlug: 'orion-devforge-orchestrator', purpose: 'ELEC-TEST-014' },
+  '1500118065508257933': { server: 'ELEC-TEST', name: 'devforge-elec-test-signoff', agentSlug: 'reviewer-devforge-code-review-qa', purpose: 'ELEC-TEST-015' },
+  '1500118068444266536': { server: 'ELEC-TEST', name: 'qualityforge-elec-test-regression', agentSlug: 'governor-qualityforge-quality-director', purpose: 'ELEC-TEST-016' },
   // ELEC-PROJECTS
-  '1500134762340290650': { server: 'ELEC-PROJECTS', name: 'devforge-elec-voice', agent: 'DevForge AI', purpose: 'ELEC-VOICE' },
-  '1500134809425543178': { server: 'ELEC-PROJECTS', name: 'domainforge-elec-workflow', agent: 'DomainForge AI', purpose: 'ELEC-WORKFLOW' },
+  '1500134762340290650': { server: 'ELEC-PROJECTS', name: 'devforge-elec-voice', agentSlug: 'orion-devforge-orchestrator', purpose: 'ELEC-VOICE' },
+  '1500134809425543178': { server: 'ELEC-PROJECTS', name: 'domainforge-elec-workflow', agentSlug: 'design-domainforge-design', purpose: 'ELEC-WORKFLOW' },
   // QS-TEST
-  '1500134848046698646': { server: 'QS-TEST', name: 'devforge-qs-test-foundation', agent: 'DevForge AI', purpose: 'QS-TEST-001' },
-  '1500134849644597292': { server: 'QS-TEST', name: 'infraforge-qs-test-database', agent: 'InfraForge AI', purpose: 'QS-TEST-002' },
-  '1500134852194730160': { server: 'QS-TEST', name: 'devforge-qs-test-agents', agent: 'DevForge AI', purpose: 'QS-TEST-003' },
-  '1500134855004913664': { server: 'QS-TEST', name: 'devforge-qs-test-upserts', agent: 'DevForge AI', purpose: 'QS-TEST-004' },
-  '1500134857182019604': { server: 'QS-TEST', name: 'devforge-qs-test-workspace', agent: 'DevForge AI', purpose: 'QS-TEST-005' },
-  '1500134859081777292': { server: 'QS-TEST', name: 'devforge-qs-test-chatbot', agent: 'DevForge AI', purpose: 'QS-TEST-006' },
-  '1500134861128601663': { server: 'QS-TEST', name: 'domainforge-qs-test-workflow', agent: 'DomainForge AI', purpose: 'QS-TEST-007' },
-  '1500134863024685137': { server: 'QS-TEST', name: 'domainforge-qs-test-templates', agent: 'DomainForge AI', purpose: 'QS-TEST-008' },
-  '1500134865889398844': { server: 'QS-TEST', name: 'domainforge-qs-test-suppliers', agent: 'DomainForge AI', purpose: 'QS-TEST-009' },
-  '1500134867898208356': { server: 'QS-TEST', name: 'domainforge-qs-test-tenders', agent: 'DomainForge AI', purpose: 'QS-TEST-010' },
-  '1500134869806878750': { server: 'QS-TEST', name: 'infraforge-qs-test-integrations', agent: 'InfraForge AI', purpose: 'QS-TEST-011' },
-  '1500134872369332284': { server: 'QS-TEST', name: 'devforge-qs-test-compliance', agent: 'DevForge AI', purpose: 'QS-TEST-012' },
-  '1500134874009305250': { server: 'QS-TEST', name: 'devforge-qs-test-delegation', agent: 'DevForge AI', purpose: 'QS-TEST-013' },
-  '1500134876689731714': { server: 'QS-TEST', name: 'devforge-qs-test-feedback', agent: 'DevForge AI', purpose: 'QS-TEST-014' },
-  '1500134878795010148': { server: 'QS-TEST', name: 'devforge-qs-test-signoff', agent: 'DevForge AI', purpose: 'QS-TEST-015' },
-  '1500134881727086654': { server: 'QS-TEST', name: 'qualityforge-qs-test-regression', agent: 'QualityForge AI', purpose: 'QS-TEST-016' },
+  '1500134848046698646': { server: 'QS-TEST', name: 'devforge-qs-test-foundation', agentSlug: 'devcore-devforge-core-development', purpose: 'QS-TEST-001' },
+  '1500134849644597292': { server: 'QS-TEST', name: 'infraforge-qs-test-database', agentSlug: 'database-infraforge-database-infrastructure', purpose: 'QS-TEST-002' },
+  '1500134852194730160': { server: 'QS-TEST', name: 'devforge-qs-test-agents', agentSlug: 'codesmith-devforge-backend-engineer', purpose: 'QS-TEST-003' },
+  '1500134855004913664': { server: 'QS-TEST', name: 'devforge-qs-test-upserts', agentSlug: 'codesmith-devforge-backend-engineer', purpose: 'QS-TEST-004' },
+  '1500134857182019604': { server: 'QS-TEST', name: 'devforge-qs-test-workspace', agentSlug: 'interface-devforge-api-integration', purpose: 'QS-TEST-005' },
+  '1500134859081777292': { server: 'QS-TEST', name: 'devforge-qs-test-chatbot', agentSlug: 'interface-devforge-api-integration', purpose: 'QS-TEST-006' },
+  '1500134861128601663': { server: 'QS-TEST', name: 'domainforge-qs-test-workflow', agentSlug: 'design-domainforge-design', purpose: 'QS-TEST-007' },
+  '1500134863024685137': { server: 'QS-TEST', name: 'domainforge-qs-test-templates', agentSlug: 'design-domainforge-design', purpose: 'QS-TEST-008' },
+  '1500134865889398844': { server: 'QS-TEST', name: 'domainforge-qs-test-suppliers', agentSlug: 'procurement-domainforge-procurement-contracts', purpose: 'QS-TEST-009' },
+  '1500134867898208356': { server: 'QS-TEST', name: 'domainforge-qs-test-tenders', agentSlug: 'contracts-pre-award-domainforge-contracts-pre-award', purpose: 'QS-TEST-010' },
+  '1500134869806878750': { server: 'QS-TEST', name: 'infraforge-qs-test-integrations', agentSlug: 'nimbus-infraforge-supabase-specialist', purpose: 'QS-TEST-011' },
+  '1500134872369332284': { server: 'QS-TEST', name: 'devforge-qs-test-compliance', agentSlug: 'reviewer-devforge-code-review-qa', purpose: 'QS-TEST-012' },
+  '1500134874009305250': { server: 'QS-TEST', name: 'devforge-qs-test-delegation', agentSlug: 'orion-devforge-orchestrator', purpose: 'QS-TEST-013' },
+  '1500134876689731714': { server: 'QS-TEST', name: 'devforge-qs-test-feedback', agentSlug: 'orion-devforge-orchestrator', purpose: 'QS-TEST-014' },
+  '1500134878795010148': { server: 'QS-TEST', name: 'devforge-qs-test-signoff', agentSlug: 'reviewer-devforge-code-review-qa', purpose: 'QS-TEST-015' },
+  '1500134881727086654': { server: 'QS-TEST', name: 'qualityforge-qs-test-regression', agentSlug: 'governor-qualityforge-quality-director', purpose: 'QS-TEST-016' },
   // CONTRACTS-QS
-  '1500134934331785367': { server: 'CONTRACTS-QS', name: 'domainforge-con-voice', agent: 'DomainForge AI', purpose: 'CON-VOICE' },
-  '1500134935942660139': { server: 'CONTRACTS-QS', name: 'domainforge-cpost-voice', agent: 'DomainForge AI', purpose: 'CPOST-VOICE' },
-  '1500134938769363046': { server: 'CONTRACTS-QS', name: 'domainforge-cpre-voice', agent: 'DomainForge AI', purpose: 'CPRE-VOICE' },
-  '1500134940724170884': { server: 'CONTRACTS-QS', name: 'paperclipforge-proc-001-qs', agent: 'PaperclipForge AI', purpose: 'PROC-001' },
-  '1500134942770725036': { server: 'CONTRACTS-QS', name: 'measureforge-qs-voice', agent: 'MeasureForge AI', purpose: 'QS-VOICE' },
+  '1500134934331785367': { server: 'CONTRACTS-QS', name: 'domainforge-con-voice', agentSlug: 'orion-domainforge-ceo', purpose: 'CON-VOICE' },
+  '1500134935942660139': { server: 'CONTRACTS-QS', name: 'domainforge-cpost-voice', agentSlug: 'orion-domainforge-ceo', purpose: 'CPOST-VOICE' },
+  '1500134938769363046': { server: 'CONTRACTS-QS', name: 'domainforge-cpre-voice', agentSlug: 'orion-domainforge-ceo', purpose: 'CPRE-VOICE' },
+  '1500134940724170884': { server: 'CONTRACTS-QS', name: 'paperclipforge-proc-001-qs', agentSlug: 'paperclipforge-ai-automation-specialist', purpose: 'PROC-001' },
+  '1500134942770725036': { server: 'CONTRACTS-QS', name: 'measureforge-qs-voice', agentSlug: 'measureforge-ai-measurement-specialist', purpose: 'QS-VOICE' },
   // MEASUREMENT
-  '1500135012975120576': { server: 'MEASUREMENT', name: 'measureforge-measure-ai', agent: 'MeasureForge AI', purpose: 'MEASURE-AI' },
-  '1500135015655411895': { server: 'MEASUREMENT', name: 'knowledgeforge-measure-analytics', agent: 'KnowledgeForge AI', purpose: 'MEASURE-ANALYTICS' },
-  '1500135018000023795': { server: 'MEASUREMENT', name: 'measureforge-measure-cad', agent: 'MeasureForge AI', purpose: 'MEASURE-CAD' },
-  '1500135020684247172': { server: 'MEASUREMENT', name: 'measureforge-measure-comm', agent: 'MeasureForge AI', purpose: 'MEASURE-COMM' },
-  '1500135023146172477': { server: 'MEASUREMENT', name: 'measureforge-measure-templates', agent: 'MeasureForge AI', purpose: 'MEASURE-TEMPLATES' },
-  '1500135025512026183': { server: 'MEASUREMENT', name: 'measureforge-measure-tender', agent: 'MeasureForge AI', purpose: 'MEASURE-TENDER' },
+  '1500135012975120576': { server: 'MEASUREMENT', name: 'measureforge-measure-ai', agentSlug: 'measureforge-ai-measurement-specialist', purpose: 'MEASURE-AI' },
+  '1500135015655411895': { server: 'MEASUREMENT', name: 'knowledgeforge-measure-analytics', agentSlug: 'knowledgeforge-ai-analytics-specialist', purpose: 'MEASURE-ANALYTICS' },
+  '1500135018000023795': { server: 'MEASUREMENT', name: 'measureforge-measure-cad', agentSlug: 'measureforge-ai-measurement-specialist', purpose: 'MEASURE-CAD' },
+  '1500135020684247172': { server: 'MEASUREMENT', name: 'measureforge-measure-comm', agentSlug: 'measureforge-ai-measurement-specialist', purpose: 'MEASURE-COMM' },
+  '1500135023146172477': { server: 'MEASUREMENT', name: 'measureforge-measure-templates', agentSlug: 'measureforge-ai-measurement-specialist', purpose: 'MEASURE-TEMPLATES' },
+  '1500135025512026183': { server: 'MEASUREMENT', name: 'measureforge-measure-tender', agentSlug: 'measureforge-ai-measurement-specialist', purpose: 'MEASURE-TENDER' },
   // LOGIS-TEST
-  '1500135074379857920': { server: 'LOGIS-TEST', name: 'devforge-logis-test-foundation', agent: 'DevForge AI', purpose: 'LOGIS-TEST-001' },
-  '1500135079224279042': { server: 'LOGIS-TEST', name: 'infraforge-logis-test-database', agent: 'InfraForge AI', purpose: 'LOGIS-TEST-002' },
-  '1500135082005106749': { server: 'LOGIS-TEST', name: 'devforge-logis-test-agents', agent: 'DevForge AI', purpose: 'LOGIS-TEST-003' },
-  '1500135085402493039': { server: 'LOGIS-TEST', name: 'devforge-logis-test-upserts', agent: 'DevForge AI', purpose: 'LOGIS-TEST-004' },
-  '1500135089202397296': { server: 'LOGIS-TEST', name: 'devforge-logis-test-workspace', agent: 'DevForge AI', purpose: 'LOGIS-TEST-005' },
-  '1500135091379372155': { server: 'LOGIS-TEST', name: 'devforge-logis-test-chatbot', agent: 'DevForge AI', purpose: 'LOGIS-TEST-006' },
-  '1500135093149110362': { server: 'LOGIS-TEST', name: 'domainforge-logis-test-workflow', agent: 'DomainForge AI', purpose: 'LOGIS-TEST-007' },
-  '1500135095133012078': { server: 'LOGIS-TEST', name: 'domainforge-logis-test-templates', agent: 'DomainForge AI', purpose: 'LOGIS-TEST-008' },
-  '1500135097301467219': { server: 'LOGIS-TEST', name: 'domainforge-logis-test-suppliers', agent: 'DomainForge AI', purpose: 'LOGIS-TEST-009' },
-  '1500135099683963001': { server: 'LOGIS-TEST', name: 'domainforge-logis-test-tenders', agent: 'DomainForge AI', purpose: 'LOGIS-TEST-010' },
-  '1500135101210824897': { server: 'LOGIS-TEST', name: 'infraforge-logis-test-integrations', agent: 'InfraForge AI', purpose: 'LOGIS-TEST-011' },
-  '1500135103358042384': { server: 'LOGIS-TEST', name: 'devforge-logis-test-compliance', agent: 'DevForge AI', purpose: 'LOGIS-TEST-012' },
-  '1500135105568571425': { server: 'LOGIS-TEST', name: 'devforge-logis-test-delegation', agent: 'DevForge AI', purpose: 'LOGIS-TEST-013' },
-  '1500135107871248457': { server: 'LOGIS-TEST', name: 'devforge-logis-test-feedback', agent: 'DevForge AI', purpose: 'LOGIS-TEST-014' },
-  '1500135110450745466': { server: 'LOGIS-TEST', name: 'devforge-logis-test-signoff', agent: 'DevForge AI', purpose: 'LOGIS-TEST-015' },
-  '1500135112447365241': { server: 'LOGIS-TEST', name: 'qualityforge-logis-test-regression', agent: 'QualityForge AI', purpose: 'LOGIS-TEST-016' },
+  '1500135074379857920': { server: 'LOGIS-TEST', name: 'devforge-logis-test-foundation', agentSlug: 'devcore-devforge-core-development', purpose: 'LOGIS-TEST-001' },
+  '1500135079224279042': { server: 'LOGIS-TEST', name: 'infraforge-logis-test-database', agentSlug: 'database-infraforge-database-infrastructure', purpose: 'LOGIS-TEST-002' },
+  '1500135082005106749': { server: 'LOGIS-TEST', name: 'devforge-logis-test-agents', agentSlug: 'codesmith-devforge-backend-engineer', purpose: 'LOGIS-TEST-003' },
+  '1500135085402493039': { server: 'LOGIS-TEST', name: 'devforge-logis-test-upserts', agentSlug: 'codesmith-devforge-backend-engineer', purpose: 'LOGIS-TEST-004' },
+  '1500135089202397296': { server: 'LOGIS-TEST', name: 'devforge-logis-test-workspace', agentSlug: 'interface-devforge-api-integration', purpose: 'LOGIS-TEST-005' },
+  '1500135091379372155': { server: 'LOGIS-TEST', name: 'devforge-logis-test-chatbot', agentSlug: 'interface-devforge-api-integration', purpose: 'LOGIS-TEST-006' },
+  '1500135093149110362': { server: 'LOGIS-TEST', name: 'domainforge-logis-test-workflow', agentSlug: 'design-domainforge-design', purpose: 'LOGIS-TEST-007' },
+  '1500135095133012078': { server: 'LOGIS-TEST', name: 'domainforge-logis-test-templates', agentSlug: 'design-domainforge-design', purpose: 'LOGIS-TEST-008' },
+  '1500135097301467219': { server: 'LOGIS-TEST', name: 'domainforge-logis-test-suppliers', agentSlug: 'procurement-domainforge-procurement-contracts', purpose: 'LOGIS-TEST-009' },
+  '1500135099683963001': { server: 'LOGIS-TEST', name: 'domainforge-logis-test-tenders', agentSlug: 'contracts-pre-award-domainforge-contracts-pre-award', purpose: 'LOGIS-TEST-010' },
+  '1500135101210824897': { server: 'LOGIS-TEST', name: 'infraforge-logis-test-integrations', agentSlug: 'nimbus-infraforge-supabase-specialist', purpose: 'LOGIS-TEST-011' },
+  '1500135103358042384': { server: 'LOGIS-TEST', name: 'devforge-logis-test-compliance', agentSlug: 'reviewer-devforge-code-review-qa', purpose: 'LOGIS-TEST-012' },
+  '1500135105568571425': { server: 'LOGIS-TEST', name: 'devforge-logis-test-delegation', agentSlug: 'orion-devforge-orchestrator', purpose: 'LOGIS-TEST-013' },
+  '1500135107871248457': { server: 'LOGIS-TEST', name: 'devforge-logis-test-feedback', agentSlug: 'orion-devforge-orchestrator', purpose: 'LOGIS-TEST-014' },
+  '1500135110450745466': { server: 'LOGIS-TEST', name: 'devforge-logis-test-signoff', agentSlug: 'reviewer-devforge-code-review-qa', purpose: 'LOGIS-TEST-015' },
+  '1500135112447365241': { server: 'LOGIS-TEST', name: 'qualityforge-logis-test-regression', agentSlug: 'governor-qualityforge-quality-director', purpose: 'LOGIS-TEST-016' },
   // LOGISTICS
-  '1500135153278648480': { server: 'LOGISTICS', name: 'voiceforge-log-voice', agent: 'VoiceForge AI', purpose: 'LOG-VOICE' },
-  '1500135155694567457': { server: 'LOGISTICS', name: 'devforge-logistics-platform', agent: 'DevForge AI', purpose: 'LOGISTICS-PLATFORM' },
+  '1500135153278648480': { server: 'LOGISTICS', name: 'voiceforge-log-voice', agentSlug: 'voiceforge-ai-voice-specialist', purpose: 'LOG-VOICE' },
+  '1500135155694567457': { server: 'LOGISTICS', name: 'devforge-logistics-platform', agentSlug: 'orion-devforge-orchestrator', purpose: 'LOGISTICS-PLATFORM' },
   // ENGINEERING
-  '1500135158739898399': { server: 'ENGINEERING', name: 'paperclipforge-eng-auto', agent: 'PaperclipForge AI', purpose: 'ENG-AUTO-000' },
-  '1500135161302351922': { server: 'ENGINEERING', name: 'devforge-eng-platform', agent: 'DevForge AI', purpose: 'ENG-PLATFORM-000' },
-  '1500135162804043838': { server: 'ENGINEERING', name: 'voiceforge-eng-voice', agent: 'VoiceForge AI', purpose: 'ENG-VOICE' },
+  '1500135158739898399': { server: 'ENGINEERING', name: 'paperclipforge-eng-auto', agentSlug: 'paperclipforge-ai-automation-specialist', purpose: 'ENG-AUTO-000' },
+  '1500135161302351922': { server: 'ENGINEERING', name: 'devforge-eng-platform', agentSlug: 'orion-devforge-orchestrator', purpose: 'ENG-PLATFORM-000' },
+  '1500135162804043838': { server: 'ENGINEERING', name: 'voiceforge-eng-voice', agentSlug: 'voiceforge-ai-voice-specialist', purpose: 'ENG-VOICE' },
   // ALL-DISCIPLINES
-  '1500135909285433435': { server: 'ALL-DISCIPLINES', name: 'domainforge-design-workflow', agent: 'DomainForge AI', purpose: 'DESIGN-WORKFLOW' },
-  '1500135911361347727': { server: 'ALL-DISCIPLINES', name: 'voiceforge-arch-voice', agent: 'VoiceForge AI', purpose: 'ARCH-VOICE' },
-  '1500135913219424421': { server: 'ALL-DISCIPLINES', name: 'domainforge-architectural-workflow', agent: 'DomainForge AI', purpose: 'ARCHITECTURAL-WORKFLOW' },
-  '1500135915295608933': { server: 'ALL-DISCIPLINES', name: 'voiceforge-chem-voice', agent: 'VoiceForge AI', purpose: 'CHEM-VOICE' },
-  '1500135917741150389': { server: 'ALL-DISCIPLINES', name: 'domainforge-chemical-workflow', agent: 'DomainForge AI', purpose: 'CHEMICAL-WORKFLOW' },
-  '1500135919536181289': { server: 'ALL-DISCIPLINES', name: 'voiceforge-civil-voice', agent: 'VoiceForge AI', purpose: 'CIVIL-VOICE' },
-  '1500135922057089044': { server: 'ALL-DISCIPLINES', name: 'domainforge-civil-workflow', agent: 'DomainForge AI', purpose: 'CIVIL-WORKFLOW' },
-  '1500135924158173255': { server: 'ALL-DISCIPLINES', name: 'voiceforge-land-voice', agent: 'VoiceForge AI', purpose: 'LAND-VOICE' },
-  '1500135925894877226': { server: 'ALL-DISCIPLINES', name: 'domainforge-geotech-workflow', agent: 'DomainForge AI', purpose: 'GEOTECH-WORKFLOW' },
-  '1500135928377770166': { server: 'ALL-DISCIPLINES', name: 'voiceforge-geo-voice', agent: 'VoiceForge AI', purpose: 'GEO-VOICE' },
-  '1500135930340839484': { server: 'ALL-DISCIPLINES', name: 'voiceforge-mech-voice', agent: 'VoiceForge AI', purpose: 'MECH-VOICE' },
-  '1500135932349907115': { server: 'ALL-DISCIPLINES', name: 'domainforge-mech-workflow', agent: 'DomainForge AI', purpose: 'MECH-WORKFLOW' },
-  '1500135934476288020': { server: 'ALL-DISCIPLINES', name: 'voiceforge-proce-voice', agent: 'VoiceForge AI', purpose: 'PROCE-VOICE' },
-  '1500135936967573729': { server: 'ALL-DISCIPLINES', name: 'domainforge-process-workflow', agent: 'DomainForge AI', purpose: 'PROCESS-WORKFLOW' },
-  '1500135939488612503': { server: 'ALL-DISCIPLINES', name: 'voiceforge-struc-voice', agent: 'VoiceForge AI', purpose: 'STRUC-VOICE' },
-  '1500135941728112660': { server: 'ALL-DISCIPLINES', name: 'domainforge-env-workflow', agent: 'DomainForge AI', purpose: 'ENV-WORKFLOW' },
-  '1500135943808614520': { server: 'ALL-DISCIPLINES', name: 'voiceforge-env-voice', agent: 'VoiceForge AI', purpose: 'ENV-VOICE' },
-  '1500135945620684811': { server: 'ALL-DISCIPLINES', name: 'integrateforge-integration-settings', agent: 'IntegrateForge AI', purpose: 'INTEGRATION-SETTINGS-UI' },
-  '1500135947667374144': { server: 'ALL-DISCIPLINES', name: 'devforge-security-asset', agent: 'DevForge AI', purpose: 'SECURITY-ASSET' },
-  '1500135950422904852': { server: 'ALL-DISCIPLINES', name: 'domainforge-sundry-workflow', agent: 'DomainForge AI', purpose: 'SUNDRY-WORKFLOW' },
-  '1500135953304653944': { server: 'ALL-DISCIPLINES', name: 'saasforge-saas-prod-prep', agent: 'SaaSForge AI', purpose: 'SAAS-PROD-PREP' },
-  '1500135955460395252': { server: 'ALL-DISCIPLINES', name: 'mobileforge-mobile-test', agent: 'MobileForge AI', purpose: 'MOBILE-TEST' },
-  '1500135958111064154': { server: 'ALL-DISCIPLINES', name: 'qualityforge-prod-test', agent: 'QualityForge AI', purpose: 'PROD-TEST' }
+  '1500135909285433435': { server: 'ALL-DISCIPLINES', name: 'domainforge-design-workflow', agentSlug: 'design-domainforge-design', purpose: 'DESIGN-WORKFLOW' },
+  '1500135911361347727': { server: 'ALL-DISCIPLINES', name: 'voiceforge-arch-voice', agentSlug: 'voiceforge-ai-voice-specialist', purpose: 'ARCH-VOICE' },
+  '1500135913219424421': { server: 'ALL-DISCIPLINES', name: 'domainforge-architectural-workflow', agentSlug: 'design-domainforge-design', purpose: 'ARCHITECTURAL-WORKFLOW' },
+  '1500135915295608933': { server: 'ALL-DISCIPLINES', name: 'voiceforge-chem-voice', agentSlug: 'voiceforge-ai-voice-specialist', purpose: 'CHEM-VOICE' },
+  '1500135917741150389': { server: 'ALL-DISCIPLINES', name: 'domainforge-chemical-workflow', agentSlug: 'design-domainforge-design', purpose: 'CHEMICAL-WORKFLOW' },
+  '1500135919536181289': { server: 'ALL-DISCIPLINES', name: 'voiceforge-civil-voice', agentSlug: 'voiceforge-ai-voice-specialist', purpose: 'CIVIL-VOICE' },
+  '1500135922057089044': { server: 'ALL-DISCIPLINES', name: 'domainforge-civil-workflow', agentSlug: 'design-domainforge-design', purpose: 'CIVIL-WORKFLOW' },
+  '1500135924158173255': { server: 'ALL-DISCIPLINES', name: 'voiceforge-land-voice', agentSlug: 'voiceforge-ai-voice-specialist', purpose: 'LAND-VOICE' },
+  '1500135925894877226': { server: 'ALL-DISCIPLINES', name: 'domainforge-geotech-workflow', agentSlug: 'design-domainforge-design', purpose: 'GEOTECH-WORKFLOW' },
+  '1500135928377770166': { server: 'ALL-DISCIPLINES', name: 'voiceforge-geo-voice', agentSlug: 'voiceforge-ai-voice-specialist', purpose: 'GEO-VOICE' },
+  '1500135930340839484': { server: 'ALL-DISCIPLINES', name: 'voiceforge-mech-voice', agentSlug: 'voiceforge-ai-voice-specialist', purpose: 'MECH-VOICE' },
+  '1500135932349907115': { server: 'ALL-DISCIPLINES', name: 'domainforge-mech-workflow', agentSlug: 'design-domainforge-design', purpose: 'MECH-WORKFLOW' },
+  '1500135934476288020': { server: 'ALL-DISCIPLINES', name: 'voiceforge-proce-voice', agentSlug: 'voiceforge-ai-voice-specialist', purpose: 'PROCE-VOICE' },
+  '1500135936967573729': { server: 'ALL-DISCIPLINES', name: 'domainforge-process-workflow', agentSlug: 'design-domainforge-design', purpose: 'PROCESS-WORKFLOW' },
+  '1500135939488612503': { server: 'ALL-DISCIPLINES', name: 'voiceforge-struc-voice', agentSlug: 'voiceforge-ai-voice-specialist', purpose: 'STRUC-VOICE' },
+  '1500135941728112660': { server: 'ALL-DISCIPLINES', name: 'domainforge-env-workflow', agentSlug: 'design-domainforge-design', purpose: 'ENV-WORKFLOW' },
+  '1500135943808614520': { server: 'ALL-DISCIPLINES', name: 'voiceforge-env-voice', agentSlug: 'voiceforge-ai-voice-specialist', purpose: 'ENV-VOICE' },
+  '1500135945620684811': { server: 'ALL-DISCIPLINES', name: 'integrateforge-integration-settings', agentSlug: 'integrateforge-ai-integration-specialist', purpose: 'INTEGRATION-SETTINGS-UI' },
+  '1500135947667374144': { server: 'ALL-DISCIPLINES', name: 'devforge-security-asset', agentSlug: 'orion-devforge-orchestrator', purpose: 'SECURITY-ASSET' },
+  '1500135950422904852': { server: 'ALL-DISCIPLINES', name: 'domainforge-sundry-workflow', agentSlug: 'design-domainforge-design', purpose: 'SUNDRY-WORKFLOW' },
+  '1500135953304653944': { server: 'ALL-DISCIPLINES', name: 'saasforge-saas-prod-prep', agentSlug: 'saasforge-ai-saas-specialist', purpose: 'SAAS-PROD-PREP' },
+  '1500135955460395252': { server: 'ALL-DISCIPLINES', name: 'mobileforge-mobile-test', agentSlug: 'mobileforge-ai-mobile-specialist', purpose: 'MOBILE-TEST' },
+  '1500135958111064154': { server: 'ALL-DISCIPLINES', name: 'qualityforge-prod-test', agentSlug: 'governor-qualityforge-quality-director', purpose: 'PROD-TEST' }
 };
 
 // ============================================================
@@ -245,7 +386,21 @@ function buildChannelMap(client) {
 
   // 1. Add all issue channels from the hardcoded registry
   for (const [id, info] of Object.entries(ISSUE_CHANNELS)) {
-    map[id] = { ...info, type: 'issue', reply_mode: 'cross-ref' };
+    // Resolve agent display name from AGENT_REGISTRY if agentSlug is set
+    let agentDisplay = info.agent; // fallback to raw agent if no slug
+    let agentRole = '';
+    if (info.agentSlug && AGENT_REGISTRY[info.agentSlug]) {
+      agentDisplay = AGENT_REGISTRY[info.agentSlug].display;
+      agentRole = AGENT_REGISTRY[info.agentSlug].role;
+    }
+    
+    map[id] = { 
+      ...info, 
+      type: 'issue', 
+      reply_mode: 'cross-ref',
+      agentDisplay,
+      agentRole
+    };
   }
 
   // 2. Scan all guilds for control/log/ops/system/work channels by name
@@ -271,6 +426,8 @@ function buildChannelMap(client) {
         server: serverName,
         name: name,
         agent: null,
+        agentDisplay: null,
+        agentRole: null,
         purpose: purpose,
         type: type,
         reply_mode: getReplyMode(type)
@@ -957,11 +1114,22 @@ async function createWorkChannel(guildId, serverName, issueId, customName = null
   }
 
   try {
+    // Get agent details for the topic
+    let agentDetails = '';
+    const issueChannelEntry = Object.entries(ISSUE_CHANNELS).find(([id, info]) => info.purpose === issueId);
+    if (issueChannelEntry) {
+      const agentSlug = issueChannelEntry[1].agentSlug;
+      if (agentSlug && AGENT_REGISTRY[agentSlug]) {
+        const agent = AGENT_REGISTRY[agentSlug];
+        agentDetails = ` — Agent: ${agent.display} (${agent.role})`;
+      }
+    }
+    
     const result = await discordApiRequest(`/guilds/${guildId}/channels`, 'POST', {
       name: channelName,
       type: 0, // GuildText
       parent_id: categoryId,
-      topic: `Active work session for ${issueId} — spawned sub-agents working in parallel.`
+      topic: `Active work session for ${issueId}${agentDetails} — spawned sub-agents working in parallel.`
     });
 
     if (result.id) {
@@ -1018,8 +1186,6 @@ async function postToIssueChannel(serverName, issueId, content) {
   const issueEntry = Object.entries(CHANNEL_MAP).find(
     ([id, info]) => info.server === serverName && info.purpose === issueId
   ) || Object.entries(CHANNEL_MAP).find(
-    ([id, info]) => info.server === 'ALL-DISCIPLINES' && info.purpose === issueId
-  ) || Object.entries(CHANNEL_MAP).find(
     // Fallback: match by prefix (e.g., PROD-001 matches PROD-TEST channel)
     ([id, info]) => info.server === 'ALL-DISCIPLINES' && issueId.startsWith(info.purpose.split('-')[0])
   );
@@ -1045,10 +1211,19 @@ async function completeWork(workChannelId, serverName, issueId) {
 
   workInfo.status = 'completed';
 
+  // Get agent details for the completion message
+  let agentInfo = '';
+  if (workInfo.agentDisplay) {
+    agentInfo = `\n🤖 Agent: **${workInfo.agentDisplay}**`;
+    if (workInfo.agentRole) {
+      agentInfo += ` (${workInfo.agentRole})`;
+    }
+  }
+
   // Post summary to #project-log
   const duration = Math.round((Date.now() - workInfo.startedAt) / 1000 / 60);
   await postToProjectLog(serverName,
-    `📋 **Work Complete: ${issueId}**\n` +
+    `📋 **Work Complete: ${issueId}**${agentInfo}\n` +
     `📅 Duration: ${duration} minutes\n` +
     `🤖 Sub-agents: ${workInfo.subAgentCount}\n` +
     `✅ Status: Completed`
@@ -1217,8 +1392,11 @@ client.on(Events.MessageCreate, async (message) => {
 
         case '!whoami': {
           const thisChannel = CHANNEL_MAP[message.channelId];
-          if (thisChannel && thisChannel.agent) {
-            await message.reply(`This channel is assigned to **${thisChannel.agent}** for **${thisChannel.purpose}**.`);
+          if (thisChannel && thisChannel.agentDisplay) {
+            const agentInfo = thisChannel.agentSlug && AGENT_REGISTRY[thisChannel.agentSlug] 
+              ? `**${thisChannel.agentDisplay}** (${thisChannel.agentRole})` 
+              : thisChannel.agentDisplay;
+            await message.reply(`This channel is assigned to ${agentInfo} for **${thisChannel.purpose}**.`);
           } else {
             await message.reply(`This is a **${thisChannel ? thisChannel.type : 'unknown'}** channel.`);
           }
@@ -1443,6 +1621,19 @@ client.on(Events.MessageCreate, async (message) => {
           continue;
         }
 
+        // Get agent display for this issue
+        let agentSlug = null;
+        let agentDisplay = 'Unknown';
+        let agentRole = '';
+        const issueChannelEntry = Object.entries(ISSUE_CHANNELS).find(([id, info]) => info.purpose === issueId);
+        if (issueChannelEntry) {
+          agentSlug = issueChannelEntry[1].agentSlug;
+          if (agentSlug && AGENT_REGISTRY[agentSlug]) {
+            agentDisplay = AGENT_REGISTRY[agentSlug].display;
+            agentRole = AGENT_REGISTRY[agentSlug].role;
+          }
+        }
+
         // Use shared channel if targetChannelName was specified, otherwise per-issue
         const workChannelId = sharedChannelId || await createWorkChannel(guildId, server, issueId);
         if (!workChannelId) {
@@ -1459,7 +1650,10 @@ client.on(Events.MessageCreate, async (message) => {
           server,
           status: 'active',
           subAgentCount: 0,
-          startedAt: Date.now()
+          startedAt: Date.now(),
+          agentSlug,
+          agentDisplay,
+          agentRole
         };
 
         // Dispatch to the correct agent for this issue
@@ -1490,9 +1684,11 @@ client.on(Events.MessageCreate, async (message) => {
           `🔗 Work channel: <#${workChannelId}>`
         );
 
-        // Notify the assigned agent's issue channel
+        // Notify the assigned agent's issue channel with agent details
+        const agentInfo = activeWorks[workChannelId];
         await postToIssueChannel(server, issueId,
           `🔧 **Work Started: ${issueId}**\n` +
+          `🤖 Agent: **${agentInfo.agentDisplay}** (${agentInfo.agentRole})\n` +
           `📅 Started: <t:${Math.floor(Date.now() / 1000)}:R>\n` +
           `🎯 Dispatched to: **${dispatchedAgent}** (${dispatchedCompany})\n` +
           `📋 Phase: ${dispatchedPhase}\n` +
