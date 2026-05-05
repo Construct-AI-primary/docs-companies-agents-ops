@@ -4,6 +4,7 @@
 const { Client, Events, ChannelType } = require('discord.js');
 const https = require('https');
 const http = require('http');
+const { execSync } = require('child_process');
 const { SERVER_MAP, AGENT_REGISTRY } = require('./bot-registry');
 const { ISSUE_CHANNELS } = require('./bot-channels');
 
@@ -18,12 +19,15 @@ const CONFIG = {
   workChannelCategoryName: 'WORKSPACES',
   workChannelInactiveMinutes: 60,
   maxConcurrentWorks: parseInt(process.env.MAX_CONCURRENT_WORKS || '1', 10),
+  knowledgeRepoPath: process.env.KNOWLEDGE_REPO_PATH || '/root/docs-companies-agents-knowledge',
+  botLogPath: process.env.BOT_LOG_PATH || '/root/.pm2/logs/bot-out.log',
 };
 
 // ============================================================
 // IN-MEMORY STATE
 // ============================================================
 const activeWorks = {};
+const completedWorks = [];
 
 // ============================================================
 // CHANNEL TYPE INFERENCE
@@ -354,6 +358,8 @@ async function completeWork(client, workChannelId, serverName, issueId) {
     `✅ Status: Completed`
   );
 
+  completedWorks.push({ issueId, server: serverName, completedAt: Date.now(), duration, agentDisplay: workInfo.agentDisplay });
+
   setTimeout(async () => {
     const guildId = SERVER_MAP[serverName];
     if (guildId) await archiveWorkChannel(client, guildId, workChannelId);
@@ -424,15 +430,28 @@ function setupMessageHandler(client) {
               'Type normally. Agent reads silently.\n' +
               'Mention @agent → cross-reference in #ai-work.\n\n' +
               '**Work Channels (#work-xxx):**\n' +
-              'Created automatically when work starts.\n' +
-              'Type @agent done → completes and archives.\n\n' +
+              'Type `!done` or `!complete` to finish work.\n' +
+              'Or mention the bot with "done" or "complete".\n\n' +
               '**Commands:**\n' +
               '`!ping` — Check bot is alive\n' +
               '`!status` — Show all servers and active works\n' +
               '`!channels` — List all channels with agent assignments\n' +
               '`!whoami` — Show this channel type\n' +
               '`!taxonomy` — Show channel type breakdown\n' +
-              '`!works` — List active work sessions'
+              '`!works` — List active work sessions\n' +
+              '`!cancel {issue-id}` — Cancel a specific work session\n' +
+              '`!done` — Complete work (in work channels)\n' +
+              '`!whois {issue-id}` — Show agent/channel for an issue\n' +
+              '`!search {term}` — Search knowledge repo\n' +
+              '`!log [lines]` — Show recent bot logs\n' +
+              '`!recent` — Show recently completed work\n' +
+              '`!next` — Show next batch of issues\n' +
+              '`!gate {project}` — Show gate status\n' +
+              '`!progress {issue-id}` — Show work progress\n' +
+              '`!echo {channel} {message}` — Echo to a channel\n' +
+              '`!purge` — Clean up archived channels\n' +
+              '`!deploy` — Pull latest code and restart\n' +
+              '`!backup` — Backup the database'
             );
             break;
 
@@ -517,6 +536,203 @@ function setupMessageHandler(client) {
             break;
           }
 
+          case '!whois': {
+            const whoisArg = args.find(a => a.includes('-') && a.match(/^[A-Z]+-/));
+            if (whoisArg) {
+              const targetIssue = whoisArg.replace('#', '').toUpperCase();
+              const entry = Object.entries(ISSUE_CHANNELS).find(([id, info]) => info.purpose === targetIssue);
+              if (entry) {
+                const [channelId, info] = entry;
+                const agentInfo = info.agentSlug && AGENT_REGISTRY[info.agentSlug]
+                  ? `**${AGENT_REGISTRY[info.agentSlug].display}** (${AGENT_REGISTRY[info.agentSlug].role})`
+                  : info.agent || 'Unknown';
+                await message.reply(
+                  `🔍 **${targetIssue}**\n` +
+                  `📌 Channel: **${info.server}/#${info.name}**\n` +
+                  `🤖 Agent: ${agentInfo}\n` +
+                  `🔗 <#${channelId}>`
+                );
+              } else {
+                await message.reply(`❌ No channel found for ${targetIssue}.`);
+              }
+            } else {
+              await message.reply('Usage: `!whois {issue-id}` (e.g., `!whois PROD-001`)');
+            }
+            break;
+          }
+
+          case '!search': {
+            const searchTerm = args.slice(1).join(' ');
+            if (!searchTerm) {
+              await message.reply('Usage: `!search {term}` (e.g., `!search procurement`)');
+              break;
+            }
+            await message.reply(`🔍 Searching knowledge repo for **"${searchTerm}"**...`);
+            try {
+              const result = execSync(
+                `grep -ril "${searchTerm}" ${CONFIG.knowledgeRepoPath} --include="*.md" 2>/dev/null | head -10`,
+                { timeout: 10000 }
+              ).toString().trim();
+              if (result) {
+                const files = result.split('\n').map(f => f.replace(CONFIG.knowledgeRepoPath + '/', '')).join('\n');
+                await message.reply(`📚 **Results for "${searchTerm}":**\n\`\`\`\n${files}\n\`\`\``);
+              } else {
+                await message.reply(`❌ No results found for "${searchTerm}".`);
+              }
+            } catch (err) {
+              await message.reply(`⚠️ Search failed: ${err.message}`);
+            }
+            break;
+          }
+
+          case '!log': {
+            const lines = parseInt(args[1]) || 20;
+            try {
+              const result = execSync(
+                `tail -${lines} ${CONFIG.botLogPath} 2>/dev/null || echo "Log file not found"`,
+                { timeout: 5000 }
+              ).toString().trim();
+              const truncated = result.length > 1900 ? result.substring(result.length - 1900) : result;
+              await message.reply(`📋 **Last ${lines} log lines:**\n\`\`\`\n${truncated}\n\`\`\``);
+            } catch (err) {
+              await message.reply(`⚠️ Could not read logs: ${err.message}`);
+            }
+            break;
+          }
+
+          case '!recent': {
+            if (completedWorks.length === 0) {
+              await message.reply('No completed work sessions recorded.');
+              break;
+            }
+            let reply = '📋 **Recently Completed Work**\n\n';
+            const recent = completedWorks.slice(-10).reverse();
+            recent.forEach(w => {
+              const timeAgo = Math.round((Date.now() - w.completedAt) / 1000 / 60);
+              reply += `  • **${w.issueId}** — ${timeAgo}m ago — ${w.duration}m — ${w.agentDisplay || 'Unknown'}\n`;
+            });
+            await message.reply(reply);
+            break;
+          }
+
+          case '!next': {
+            await message.reply(
+              '📋 **Next Batch to Dispatch**\n\n' +
+              'Based on the wave plan, the next issues are:\n' +
+              '`@agent work on PROD-001, PROD-002 in #ai-work`\n\n' +
+              'See `disciplines-orchestration/prompts/00000-PROD-TEST.md` for full details.'
+            );
+            break;
+          }
+
+          case '!gate': {
+            const projectArg = args[1] ? args[1].toUpperCase() : 'PROD-TEST';
+            await message.reply(
+              `🚧 **${projectArg} Gate Status**\n\n` +
+              `**Tier 1** — Basic Page Rendering: ⏳ Pending\n` +
+              `**Tier 2** — Component Rendering: ⏳ Pending\n` +
+              `**Tier 3** — Chatbot Testing: ⏳ Pending\n` +
+              `**Tier 4** — Full Integration: ⏳ Pending\n\n` +
+              `Use \`!works\` to see active sessions.`
+            );
+            break;
+          }
+
+          case '!progress': {
+            const progressArg = args.find(a => a.includes('-') && a.match(/^[A-Z]+-/));
+            if (progressArg) {
+              const targetIssue = progressArg.replace('#', '').toUpperCase();
+              let found = false;
+              for (const [chId, work] of Object.entries(activeWorks)) {
+                if (work.issueId === targetIssue) {
+                  const elapsed = Math.round((Date.now() - work.startedAt) / 1000 / 60);
+                  await message.reply(
+                    `📊 **Progress: ${targetIssue}**\n` +
+                    `⏱️ Elapsed: ${elapsed}m\n` +
+                    `🤖 Sub-agents: ${work.subAgentCount}\n` +
+                    `📌 Status: ${work.status}\n` +
+                    `🤖 Agent: ${work.agentDisplay || 'Unknown'}\n` +
+                    `🔗 <#${chId}>`
+                  );
+                  found = true;
+                  break;
+                }
+              }
+              if (!found) await message.reply(`❌ No active work for ${targetIssue}.`);
+            } else {
+              await message.reply('Usage: `!progress {issue-id}` (e.g., `!progress PROD-001`)');
+            }
+            break;
+          }
+
+          case '!echo': {
+            const targetChannel = args[1];
+            const echoMessage = args.slice(2).join(' ');
+            if (!targetChannel || !echoMessage) {
+              await message.reply('Usage: `!echo {channel-name} {message}` (e.g., `!echo project-log Hello world`)');
+              break;
+            }
+            const channelEntry = findChannelByName(server, targetChannel.replace(/^#/, ''));
+            if (channelEntry) {
+              const [channelId] = channelEntry;
+              const channel = client.channels.cache.get(channelId);
+              if (channel) {
+                await channel.send(`📢 **Announcement:** ${echoMessage}`);
+                await message.reply(`✅ Echoed to **#${targetChannel}**.`);
+              }
+            } else {
+              await message.reply(`❌ Channel #${targetChannel} not found.`);
+            }
+            break;
+          }
+
+          case '!purge': {
+            let purged = 0;
+            for (const [chId, work] of Object.entries(activeWorks)) {
+              if (work.status === 'completed' || work.status === 'inactive') {
+                const guildId = SERVER_MAP[work.server];
+                if (guildId) {
+                  await archiveWorkChannel(client, guildId, chId);
+                  purged++;
+                }
+                delete activeWorks[chId];
+              }
+            }
+            await message.reply(`🧹 **Purged ${purged} archived work channels.**`);
+            break;
+          }
+
+          case '!deploy': {
+            await message.reply('🚀 **Deploying...**\n`git pull` + `npm install` + `pm2 restart`');
+            try {
+              const pullResult = execSync('cd /root/docs-companies-agents-ops && git pull origin main 2>&1', { timeout: 30000 }).toString().trim();
+              const installResult = execSync('cd /root/docs-companies-agents-ops && npm install 2>&1', { timeout: 60000 }).toString().trim();
+              const restartResult = execSync('pm2 restart bot 2>&1', { timeout: 10000 }).toString().trim();
+              await message.reply(
+                `✅ **Deploy Complete**\n` +
+                `\`\`\`\n${pullResult.split('\n').slice(-3).join('\n')}\n\`\`\`\n` +
+                `🔄 Bot restarted.`
+              );
+            } catch (err) {
+              await message.reply(`❌ **Deploy failed:** ${err.message}`);
+            }
+            break;
+          }
+
+          case '!backup': {
+            await message.reply('💾 **Backing up database...**');
+            try {
+              const result = execSync(
+                'cp /root/docs-companies-agents-ops/schema/openclaw-app.db /root/docs-companies-agents-ops/schema/openclaw-app.db.backup.$(date +%Y%m%d-%H%M%S) 2>&1 && echo "Backup created"',
+                { timeout: 10000 }
+              ).toString().trim();
+              await message.reply(`✅ **Database backup complete:** ${result}`);
+            } catch (err) {
+              await message.reply(`❌ **Backup failed:** ${err.message}`);
+            }
+            break;
+          }
+
           default:
             if (command.startsWith('!')) {
               await message.reply(`Unknown command: ${command}. Try \`!help\``);
@@ -560,6 +776,32 @@ function setupMessageHandler(client) {
         return;
       }
 
+      // ── !whois in control channel ──
+      if (command === '!whois') {
+        const whoisArg = args.find(a => a.includes('-') && a.match(/^[A-Z]+-/));
+        if (whoisArg) {
+          const targetIssue = whoisArg.replace('#', '').toUpperCase();
+          const entry = Object.entries(ISSUE_CHANNELS).find(([id, info]) => info.purpose === targetIssue);
+          if (entry) {
+            const [channelId, info] = entry;
+            const agentInfo = info.agentSlug && AGENT_REGISTRY[info.agentSlug]
+              ? `**${AGENT_REGISTRY[info.agentSlug].display}** (${AGENT_REGISTRY[info.agentSlug].role})`
+              : info.agent || 'Unknown';
+            await message.reply(
+              `🔍 **${targetIssue}**\n` +
+              `📌 Channel: **${info.server}/#${info.name}**\n` +
+              `🤖 Agent: ${agentInfo}\n` +
+              `🔗 <#${channelId}>`
+            );
+          } else {
+            await message.reply(`❌ No channel found for ${targetIssue}.`);
+          }
+        } else {
+          await message.reply('Usage: `!whois {issue-id}` (e.g., `!whois PROD-001`)');
+        }
+        return;
+      }
+
       if (command === '!help' || (command === '@agent' && args.length === 1)) {
         await message.reply(
           '**Control Channel (#ai-work):**\n' +
@@ -573,6 +815,18 @@ function setupMessageHandler(client) {
           '`!whoami` — Show this channel type\n' +
           '`!taxonomy` — Show channel type breakdown\n' +
           '`!works` — List active work sessions\n' +
+          '`!cancel {issue-id}` — Cancel a specific work session\n' +
+          '`!whois {issue-id}` — Show agent/channel for an issue\n' +
+          '`!search {term}` — Search knowledge repo\n' +
+          '`!log [lines]` — Show recent bot logs\n' +
+          '`!recent` — Show recently completed work\n' +
+          '`!next` — Show next batch of issues\n' +
+          '`!gate {project}` — Show gate status\n' +
+          '`!progress {issue-id}` — Show work progress\n' +
+          '`!echo {channel} {message}` — Echo to a channel\n' +
+          '`!purge` — Clean up archived channels\n' +
+          '`!deploy` — Pull latest code and restart\n' +
+          '`!backup` — Backup the database\n' +
           '\n**Channel routing:** Add `in #channel-name` to route output to a specific channel.'
         );
       } else if (command === 'work' || (command.startsWith('@agent') && args.includes('work'))) {
@@ -690,7 +944,7 @@ function setupMessageHandler(client) {
             `📅 Started: <t:${Math.floor(Date.now() / 1000)}:R>\n` +
             `🤖 Sub-agents: ${spawnedCount > 0 ? spawnedCount : 'pending gateway config'}\n` +
             `🔗 Work channel: <#${workChannelId}>\n` +
-            `📝 Type \`@agent done\` in the work channel when complete.`
+            `📝 Type \`!done\` in the work channel when complete.`
           );
 
           successCount++;
@@ -704,7 +958,7 @@ function setupMessageHandler(client) {
           summary += `🔧 ${issueId}: <#${workChannelId}>\n`;
         });
         summary += `📝 Progress in ${logMention}\n`;
-        summary += `\nType \`@agent done\` in work channels when complete.`;
+        summary += `\nType \`!done\` in work channels when complete.`;
 
         await message.reply(summary);
       } else if (command === 'plan') {
