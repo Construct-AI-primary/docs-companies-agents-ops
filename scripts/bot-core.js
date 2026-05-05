@@ -380,6 +380,8 @@ async function completeWork(client, workChannelId, serverName, issueId) {
 // MESSAGE HANDLER — Channel-type-aware dispatch
 // ============================================================
 function setupMessageHandler(client) {
+  console.log(`📨 [DEBUG] Setting up MessageCreate handler...`);
+  
   client.on(Events.MessageCreate, async (message) => {
     // DEBUG: Log ALL messages to see if handler is triggered
     console.log(`📨 [MSG] ${message.author.username} in #${message.channel?.name || message.channelId} (${message.channelId}): ${message.content.substring(0, 50)}`);
