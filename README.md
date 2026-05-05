@@ -1,42 +1,38 @@
 # agent-companies-openclaw
 
-**OpenClaw orchestration for AI agent companies — scaffolded, awaiting details.**
+**OpenClaw orchestration layer — scripts, schemas, bot, and infrastructure.**
 
-This repository is the active development platform for orchestrating the Construct AI agent ecosystem on OpenClaw. Platform-agnostic agent definitions, domain knowledge, and project specifications are consumed from the `agent-companies-core` submodule.
+This repository contains the OpenClaw-native orchestration infrastructure: Discord bot, database schemas, deployment scripts, and adapter configurations. 
+
+**Knowledge content (agents, companies, skills, disciplines, triggers) has moved to [`docs-companies-agents`](https://github.com/Construct-AI-primary/docs-companies-agents).**
 
 ## Repository Structure
 
 ```
-├── agent-companies-core/      ← Submodule: platform-agnostic agent definitions
-│   ├── companies/             (16 companies, 29 teams)
-│   ├── agents/                (449 agents)
-│   ├── skills/                (1,123 skills)
-│   ├── domain-knowledge/      (50+ disciplines)
-│   ├── projects/              (~70 project charters, ~479 issues)
-│   ├── specs/                 (78 UI-UX specs)
-│   └── para/                  (full PARA knowledge base)
-├── orchestration/             ← OpenClaw-native coordination docs [TODO]
-├── triggers/                  ← OpenClaw automation triggers [TODO]
-├── migration/                 ← Paperclip→OpenClaw migration docs [TODO]
-├── adapters/                  ← OpenClaw adapter config [TODO]
-├── procedures/                ← OpenClaw deployment/setup [TODO]
-└── reports/                   ← OpenClaw execution reports [TODO]
+├── scripts/                   ← Discord bot (bot.js, bot-core.js, bot-channels.js, bot-registry.js)
+├── schema/                    ← SQLite database schemas
+├── sql/                       ← SQL scripts and data manipulation
+├── migration/                 ← Paperclip→OpenClaw migration docs
+├── adapters/                  ← OpenClaw adapter configurations
+├── agent-companies-core/      ← Submodule (kept for history)
+└── agent-companies-paperclip/ ← Submodule (kept for history)
 ```
 
-## Status
+## Related Repositories
 
-| Layer | Status |
-|-------|--------|
-| `agent-companies-core` | ✅ Imported as submodule |
-| `orchestration/` | 📋 Placeholder — fill when OpenClaw API/details known |
-| `triggers/` | 📋 Placeholder — fill when OpenClaw automation primitives known |
-| `migration/` | 📋 Placeholder — fill when Paperclip→OpenClaw mapping known |
-| `adapters/` | 📋 Placeholder — fill when OpenClaw adapter SDK known |
-| `procedures/` | 📋 Placeholder — fill when deployment details known |
+| Repo | Purpose |
+|------|---------|
+| **[docs-companies-agents](https://github.com/Construct-AI-primary/docs-companies-agents)** | **Flat knowledge repo** — agents, companies, skills, disciplines, triggers, orchestration docs |
+| `agent-companies-core` | Original source (kept for history) |
+| `agent-companies-paperclip` | Paperclip application (server, UI, CLI, packages) |
 
 ## Quick Start
 
 ```bash
+# Clone this repo
+git clone https://github.com/Construct-AI-primary/agent-companies-openclaw.git
+cd agent-companies-openclaw
+
 # Initialize submodules
 git submodule update --init --recursive
 
