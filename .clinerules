@@ -33,10 +33,6 @@
 ### `/adapters/` — Adapter Configurations
 - OpenClaw adapter definitions for AI coding assistants
 
-### `/agent-companies-core/` — Platform-Agnostic Knowledge (Submodule)
-- **Do not modify directly** — this is a submodule
-- Changes must be made in the `agent-companies-core` repo and pulled here
-
 ## General Rules
 
 1. **No files in repo root** except: README.md, .gitignore, .gitmodules, .clinerules, LICENSE
