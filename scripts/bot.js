@@ -1,7 +1,7 @@
 // ============================================================
 // BOT ENTRY POINT — Slim module (imports, client setup, login)
 // ============================================================
-const { Client, GatewayIntentBits, Events } = require('discord.js');
+const { Client, GatewayIntentBits, Events, Partials } = require('discord.js');
 require('dotenv').config();
 
 const { SERVER_MAP } = require('./bot-registry');
@@ -19,7 +19,14 @@ const client = new Client({
   intents: [
     GatewayIntentBits.Guilds,
     GatewayIntentBits.GuildMessages,
-    GatewayIntentBits.MessageContent
+    GatewayIntentBits.MessageContent,
+    GatewayIntentBits.GuildMembers
+  ],
+  partials: [
+    Partials.Channel,
+    Partials.Message,
+    Partials.User,
+    Partials.GuildMember
   ]
 });
 
