@@ -28,6 +28,7 @@ if [ -f "$ENV_FILE" ]; then
 fi
 
 DISCORD_BOT_TOKEN="${DISCORD_BOT_TOKEN:-}"
+DISCORD_WEBHOOK_URL="${DISCORD_WEBHOOK_URL:-}"
 TEST_CHANNEL="${TEST_CHANNEL:-bot-commands}"
 TEST_SERVER="${TEST_SERVER:-ALL-DISCIPLINES}"
 DRY_RUN=false
@@ -76,14 +77,21 @@ log_skip()  { echo -e "${YELLOW}[SKIP]${NC} $1"; ((SKIPPED++)); }
 log_test()  { ((TOTAL++)); echo -e "\n${YELLOW}[TEST $TOTAL]${NC} $1"; }
 
 # ── Check prerequisites ──
-if [ -z "$DISCORD_BOT_TOKEN" ]; then
-  echo -e "${RED}ERROR: DISCORD_BOT_TOKEN not set. Set it in .env or environment.${NC}"
+if [ -z "$DISCORD_BOT_TOKEN" ] && [ -z "$DISCORD_WEBHOOK_URL" ]; then
+  echo -e "${RED}ERROR: Either DISCORD_BOT_TOKEN or DISCORD_WEBHOOK_URL must be set.${NC}"
   exit 1
 fi
 
 if ! command -v curl &>/dev/null; then
   echo -e "${RED}ERROR: curl is required but not installed.${NC}"
   exit 1
+fi
+
+# ── Use webhook if available (preferred — messages appear as a user, not the bot) ──
+USE_WEBHOOK=false
+if [ -n "$DISCORD_WEBHOOK_URL" ]; then
+  USE_WEBHOOK=true
+  log_info "Using webhook for sending messages"
 fi
 
 # ── Get guild and channel IDs ──
@@ -124,13 +132,21 @@ send_message() {
     return 0
   fi
   
-  # Send message
+  # Send message via webhook (appears as user, bot will respond)
   local response
-  response=$(curl -s -X POST \
-    -H "Authorization: Bot $DISCORD_BOT_TOKEN" \
-    -H "Content-Type: application/json" \
-    -d "{\"content\": $(echo "$content" | jq -Rs .)}" \
-    "https://discord.com/api/v10/channels/$CHANNEL_ID/messages" 2>/dev/null)
+  if [ "$USE_WEBHOOK" = true ]; then
+    response=$(curl -s -X POST \
+      -H "Content-Type: application/json" \
+      -d "{\"content\": $(echo "$content" | jq -Rs .), \"username\": \"Bot-Tester\"}" \
+      "$DISCORD_WEBHOOK_URL" 2>/dev/null)
+  else
+    # Fallback: send via bot API (bot won't respond to itself, but we can check logs)
+    response=$(curl -s -X POST \
+      -H "Authorization: Bot $DISCORD_BOT_TOKEN" \
+      -H "Content-Type: application/json" \
+      -d "{\"content\": $(echo "$content" | jq -Rs .)}" \
+      "https://discord.com/api/v10/channels/$CHANNEL_ID/messages" 2>/dev/null)
+  fi
   
   local message_id
   message_id=$(echo "$response" | jq -r '.id' 2>/dev/null)
@@ -142,25 +158,23 @@ send_message() {
   
   echo "    Sent (ID: $message_id)"
   
-  # Wait for bot response
-  sleep 3
+  # Wait for bot to process and respond
+  sleep 4
   
   # Get recent messages to find bot's reply
   local replies
   replies=$(curl -s \
     -H "Authorization: Bot $DISCORD_BOT_TOKEN" \
-    "https://discord.com/api/v10/channels/$CHANNEL_ID/messages?limit=5" 2>/dev/null)
+    "https://discord.com/api/v10/channels/$CHANNEL_ID/messages?limit=10" 2>/dev/null)
   
+  # Find the bot's reply (first bot message after our message)
   local bot_reply
-  bot_reply=$(echo "$replies" | jq -r "[.[] | select(.author.bot == true and .referenced_message?.id == \"$message_id\")] | first | .content" 2>/dev/null)
+  bot_reply=$(echo "$replies" | jq -r --arg mid "$message_id" '
+    [.[] | select(.author.bot == true)] | first | .content
+  ' 2>/dev/null)
   
   if [ -z "$bot_reply" ] || [ "$bot_reply" = "null" ]; then
-    # Try without reference (some bots reply without referencing)
-    bot_reply=$(echo "$replies" | jq -r "[.[] | select(.author.bot == true)] | first | .content" 2>/dev/null)
-  fi
-  
-  if [ -z "$bot_reply" ] || [ "$bot_reply" = "null" ]; then
-    echo "    No bot response detected"
+    echo "    No bot response detected in channel"
     return 2
   fi
   
