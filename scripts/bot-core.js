@@ -1009,17 +1009,30 @@ function setupMessageHandler(client) {
       const content = message.content;
       const isAgentMention = message.mentions.users.has(client.user.id);
 
-      // ── !done / !complete in work channels (no mention needed) ──
+      // ── !done / !complete / !cancel in work channels (no mention needed) ──
       if (content.toLowerCase().startsWith('!done') || content.toLowerCase().startsWith('!complete')) {
         await message.reply(`🔄 Completing work for **${workInfo.issueId}**...`);
         await completeWork(client, message.channelId, workInfo.server, workInfo.issueId);
         return;
       }
 
-      if (isAgentMention && (content.toLowerCase().includes('done') || content.toLowerCase().includes('complete'))) {
-        await message.reply(`🔄 Completing work for **${workInfo.issueId}**...`);
-        await completeWork(client, message.channelId, workInfo.server, workInfo.issueId);
+      if (content.toLowerCase().startsWith('!cancel')) {
+        workInfo.status = 'cancelled';
+        await message.reply(`🛑 **Cancelled ${workInfo.issueId}** — work session ended.`);
+        const guildId = SERVER_MAP[workInfo.server];
+        if (guildId) await archiveWorkChannel(client, guildId, message.channelId);
+        delete activeWorks[message.channelId];
         return;
+      }
+
+      // Also handle @agent done/complete (role mention, not just bot user mention)
+      const hasAgentRoleMention = message.mentions.roles.some(r => r.name.toLowerCase() === 'agent');
+      if (isAgentMention || hasAgentRoleMention) {
+        if (content.toLowerCase().includes('done') || content.toLowerCase().includes('complete')) {
+          await message.reply(`🔄 Completing work for **${workInfo.issueId}**...`);
+          await completeWork(client, message.channelId, workInfo.server, workInfo.issueId);
+          return;
+        }
       }
 
       if (isAgentMention) {
