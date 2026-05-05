@@ -394,6 +394,53 @@ function setupMessageHandler(client) {
         const args = message.content.split(' ');
         const command = args[0].toLowerCase();
 
+        // ── COMMAND REFERENCE (shown on any input in #bot-commands) ──
+        function getCommandReference() {
+          return (
+            '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n' +
+            '        🤖 **OpenClaw Bot Commands**\n' +
+            '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n' +
+            '**🔧 Work Management**\n' +
+            '`@agent work on {issue-id}` — Start work on an issue\n' +
+            '`@agent work on {a}, {b}` — Start work on multiple issues\n' +
+            '`@agent plan {issue-id}` — Plan work for an issue\n' +
+            '`!cancel {issue-id}` — Cancel a running work session\n' +
+            '`!done` or `!complete` — Finish work (in work channels)\n' +
+            '`!progress {issue-id}` — Show progress of a work session\n' +
+            '`!works` — List all active work sessions\n' +
+            '`!recent` — Show recently completed work\n' +
+            '`!next` — Show next batch of issues to dispatch\n' +
+            '`!gate {project}` — Show gate/tier status for a project\n\n' +
+            '**🔍 Discovery**\n' +
+            '`!whois {issue-id}` — Find which channel/agent handles an issue\n' +
+            '`!channels` — List all channels with agent assignments\n' +
+            '`!whoami` — Show this channel type and assignment\n' +
+            '`!taxonomy` — Show channel type breakdown\n' +
+            '`!search {term}` — Search the knowledge repo for docs\n\n' +
+            '**📊 Status & Monitoring**\n' +
+            '`!status` — Show all servers, channels, and active works\n' +
+            '`!ping` — Check if the bot is alive\n' +
+            '`!log [lines]` — Show recent bot logs (default 20)\n\n' +
+            '**🚀 Operations**\n' +
+            '`!deploy` — Pull latest code from GitHub and restart bot\n' +
+            '`!backup` — Backup the database\n' +
+            '`!purge` — Clean up archived work channels\n' +
+            '`!echo {channel} {msg}` — Send an announcement to a channel\n\n' +
+            '**💡 Tips**\n' +
+            '• Commands work in `#bot-commands`, `#agent-commands`, and `#ai-work`\n' +
+            '• Only **1 concurrent work session** allowed at a time\n' +
+            '• Work channels auto-archive after 60 minutes of inactivity\n' +
+            '• Type `!help` to see this reference again\n' +
+            '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'
+          );
+        }
+
+        // ── In #bot-commands, show command reference for any unrecognized input ──
+        if (name === 'bot-commands' && !command.startsWith('!') && !command.startsWith('@')) {
+          await message.reply(getCommandReference());
+          return;
+        }
+
         switch (command) {
           case '!ping':
             await message.reply('🏓 Pong! Bot is online.');
@@ -420,39 +467,7 @@ function setupMessageHandler(client) {
           }
 
           case '!help':
-            await message.reply(
-              '**OpenClaw Bot — Full Hybrid Channel Model**\n\n' +
-              '**Control Channels (#ai-work):**\n' +
-              '`@agent work on #{issue-id}` — Start work (creates #work-xxx, spawns sub-agents)\n' +
-              '`@agent plan #{issue-id}` — Plan work for an issue\n' +
-              '`@agent status` — Show server status\n\n' +
-              '**Issue Channels:**\n' +
-              'Type normally. Agent reads silently.\n' +
-              'Mention @agent → cross-reference in #ai-work.\n\n' +
-              '**Work Channels (#work-xxx):**\n' +
-              'Type `!done` or `!complete` to finish work.\n' +
-              'Or mention the bot with "done" or "complete".\n\n' +
-              '**Commands:**\n' +
-              '`!ping` — Check bot is alive\n' +
-              '`!status` — Show all servers and active works\n' +
-              '`!channels` — List all channels with agent assignments\n' +
-              '`!whoami` — Show this channel type\n' +
-              '`!taxonomy` — Show channel type breakdown\n' +
-              '`!works` — List active work sessions\n' +
-              '`!cancel {issue-id}` — Cancel a specific work session\n' +
-              '`!done` — Complete work (in work channels)\n' +
-              '`!whois {issue-id}` — Show agent/channel for an issue\n' +
-              '`!search {term}` — Search knowledge repo\n' +
-              '`!log [lines]` — Show recent bot logs\n' +
-              '`!recent` — Show recently completed work\n' +
-              '`!next` — Show next batch of issues\n' +
-              '`!gate {project}` — Show gate status\n' +
-              '`!progress {issue-id}` — Show work progress\n' +
-              '`!echo {channel} {message}` — Echo to a channel\n' +
-              '`!purge` — Clean up archived channels\n' +
-              '`!deploy` — Pull latest code and restart\n' +
-              '`!backup` — Backup the database'
-            );
+            await message.reply(getCommandReference());
             break;
 
           case '!channels': {
