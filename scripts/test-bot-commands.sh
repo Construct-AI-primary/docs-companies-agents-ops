@@ -92,6 +92,14 @@ USE_WEBHOOK=false
 if [ -n "$DISCORD_WEBHOOK_URL" ]; then
   USE_WEBHOOK=true
   log_info "Using webhook for sending messages"
+else
+  log_info "No webhook URL set. Messages will be sent via bot API (bot won't see its own messages)."
+  log_info "To create a webhook:"
+  log_info "  1. Go to Discord → Server Settings → Integrations → Webhooks"
+  log_info "  2. Create a webhook in #bot-commands"
+  log_info "  3. Set DISCORD_WEBHOOK_URL in .env"
+  log_info ""
+  log_info "Falling back to log-based verification..."
 fi
 
 # ── Get guild and channel IDs ──
@@ -139,61 +147,71 @@ send_message() {
       -H "Content-Type: application/json" \
       -d "{\"content\": $(echo "$content" | jq -Rs .), \"username\": \"Bot-Tester\"}" \
       "$DISCORD_WEBHOOK_URL" 2>/dev/null)
+    
+    local message_id
+    message_id=$(echo "$response" | jq -r '.id' 2>/dev/null)
+    
+    if [ -z "$message_id" ] || [ "$message_id" = "null" ]; then
+      echo "    ERROR sending via webhook: $(echo "$response" | jq -r '.message // "unknown error"' 2>/dev/null)"
+      return 1
+    fi
+    
+    echo "    Sent via webhook (ID: $message_id)"
+    
+    # Wait for bot to process and respond
+    sleep 4
+    
+    # Get recent messages to find bot's reply
+    local replies
+    replies=$(curl -s \
+      -H "Authorization: Bot $DISCORD_BOT_TOKEN" \
+      "https://discord.com/api/v10/channels/$CHANNEL_ID/messages?limit=10" 2>/dev/null)
+    
+    # Find the bot's reply (first bot message)
+    local bot_reply
+    bot_reply=$(echo "$replies" | jq -r '[.[] | select(.author.bot == true)] | first | .content' 2>/dev/null)
+    
+    if [ -z "$bot_reply" ] || [ "$bot_reply" = "null" ]; then
+      echo "    No bot response detected in channel"
+      return 2
+    fi
+    
+    if [ "$VERBOSE" = true ]; then
+      echo "    Response: ${bot_reply:0:200}..."
+    fi
+    
+    # Check expected pattern
+    if [ -n "$expected_pattern" ]; then
+      if echo "$bot_reply" | grep -qi "$expected_pattern"; then
+        return 0
+      else
+        echo "    Pattern not matched: '$expected_pattern'"
+        echo "    Got: ${bot_reply:0:100}"
+        return 1
+      fi
+    fi
+    
+    return 0
   else
-    # Fallback: send via bot API (bot won't respond to itself, but we can check logs)
+    # Fallback: send via bot API and check bot logs for processing
     response=$(curl -s -X POST \
       -H "Authorization: Bot $DISCORD_BOT_TOKEN" \
       -H "Content-Type: application/json" \
       -d "{\"content\": $(echo "$content" | jq -Rs .)}" \
       "https://discord.com/api/v10/channels/$CHANNEL_ID/messages" 2>/dev/null)
-  fi
-  
-  local message_id
-  message_id=$(echo "$response" | jq -r '.id' 2>/dev/null)
-  
-  if [ -z "$message_id" ] || [ "$message_id" = "null" ]; then
-    echo "    ERROR sending message: $(echo "$response" | jq -r '.message // "unknown error"' 2>/dev/null)"
-    return 1
-  fi
-  
-  echo "    Sent (ID: $message_id)"
-  
-  # Wait for bot to process and respond
-  sleep 4
-  
-  # Get recent messages to find bot's reply
-  local replies
-  replies=$(curl -s \
-    -H "Authorization: Bot $DISCORD_BOT_TOKEN" \
-    "https://discord.com/api/v10/channels/$CHANNEL_ID/messages?limit=10" 2>/dev/null)
-  
-  # Find the bot's reply (first bot message after our message)
-  local bot_reply
-  bot_reply=$(echo "$replies" | jq -r --arg mid "$message_id" '
-    [.[] | select(.author.bot == true)] | first | .content
-  ' 2>/dev/null)
-  
-  if [ -z "$bot_reply" ] || [ "$bot_reply" = "null" ]; then
-    echo "    No bot response detected in channel"
-    return 2
-  fi
-  
-  if [ "$VERBOSE" = true ]; then
-    echo "    Response: ${bot_reply:0:200}..."
-  fi
-  
-  # Check expected pattern
-  if [ -n "$expected_pattern" ]; then
-    if echo "$bot_reply" | grep -qi "$expected_pattern"; then
-      return 0
-    else
-      echo "    Pattern not matched: '$expected_pattern'"
-      echo "    Got: ${bot_reply:0:100}"
+    
+    local message_id
+    message_id=$(echo "$response" | jq -r '.id' 2>/dev/null)
+    
+    if [ -z "$message_id" ] || [ "$message_id" = "null" ]; then
+      echo "    ERROR sending message: $(echo "$response" | jq -r '.message // "unknown error"' 2>/dev/null)"
       return 1
     fi
+    
+    echo "    Sent via bot API (ID: $message_id) — bot ignores its own messages"
+    echo "    (Set DISCORD_WEBHOOK_URL for full end-to-end testing)"
+    return 2
   fi
-  
-  return 0
 }
 
 # ── Test: !ping ──
