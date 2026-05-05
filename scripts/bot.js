@@ -5,15 +5,15 @@ const { Client, GatewayIntentBits, Events } = require('discord.js');
 require('dotenv').config();
 
 const { SERVER_MAP } = require('./bot-registry');
+const core = require('./bot-core');
 const {
   CONFIG,
   activeWorks,
-  CHANNEL_MAP,
   buildChannelMap,
   scheduleRebuildChannelMap,
   setupMessageHandler,
   completeWork
-} = require('./bot-core');
+} = core;
 
 const client = new Client({
   intents: [
@@ -30,18 +30,18 @@ client.once(Events.ClientReady, (c) => {
   console.log(`✅ OpenClaw Bot logged in as ${c.user.tag}`);
 
   // Build the dynamic channel map
-  CHANNEL_MAP = buildChannelMap(c);
+  core.CHANNEL_MAP = buildChannelMap(c);
 
-  const agentChannels = Object.values(CHANNEL_MAP).filter(ch => ch.agentDisplay !== null).length;
+  const agentChannels = Object.values(core.CHANNEL_MAP).filter(ch => ch.agentDisplay !== null).length;
   const byType = {};
-  Object.values(CHANNEL_MAP).forEach(ch => {
+  Object.values(core.CHANNEL_MAP).forEach(ch => {
     byType[ch.type] = (byType[ch.type] || 0) + 1;
   });
 
-  console.log(`📋 ${Object.keys(CHANNEL_MAP).length} channels monitored (${agentChannels} with agent assignments)`);
+  console.log(`📋 ${Object.keys(core.CHANNEL_MAP).length} channels monitored (${agentChannels} with agent assignments)`);
   console.log(`📊 Channel breakdown: ${Object.entries(byType).map(([k, v]) => `${k}: ${v}`).join(', ')}`);
 
-  const controlServers = Object.values(CHANNEL_MAP).filter(ch => ch.type === 'control').map(ch => ch.server);
+  const controlServers = Object.values(core.CHANNEL_MAP).filter(ch => ch.type === 'control').map(ch => ch.server);
   const uniqueControlServers = [...new Set(controlServers)];
   console.log(`🎮 Control channels (#ai-work) on: ${uniqueControlServers.join(', ') || 'NONE'}`);
 
