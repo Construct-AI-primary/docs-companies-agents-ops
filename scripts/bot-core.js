@@ -17,6 +17,7 @@ const CONFIG = {
   maxSubAgentsPerWork: 10,
   workChannelCategoryName: 'WORKSPACES',
   workChannelInactiveMinutes: 60,
+  maxConcurrentWorks: parseInt(process.env.MAX_CONCURRENT_WORKS || '1', 10),
 };
 
 // ============================================================
@@ -495,6 +496,27 @@ function setupMessageHandler(client) {
             break;
           }
 
+          case '!cancel': {
+            const cancelArg = args.find(a => a.includes('-') && a.match(/^[A-Z]+-/));
+            if (cancelArg) {
+              const targetIssue = cancelArg.replace('#', '').toUpperCase();
+              let found = false;
+              for (const [chId, work] of Object.entries(activeWorks)) {
+                if (work.issueId === targetIssue && work.server === server) {
+                  work.status = 'completed';
+                  await completeWork(client, chId, work.server, work.issueId);
+                  await message.reply(`🛑 **Cancelled work for ${targetIssue}**`);
+                  found = true;
+                  break;
+                }
+              }
+              if (!found) await message.reply(`❌ No active work found for ${targetIssue}. Use \`!works\` to see active sessions.`);
+            } else {
+              await message.reply('Usage: `!cancel {issue-id}` (e.g., `!cancel PROD-001`)');
+            }
+            break;
+          }
+
           default:
             if (command.startsWith('!')) {
               await message.reply(`Unknown command: ${command}. Try \`!help\``);
@@ -515,6 +537,28 @@ function setupMessageHandler(client) {
       const cleanContent = content.replace(/<@!?\d+>/g, '').trim();
       const args = cleanContent.split(' ');
       const command = args[0].toLowerCase();
+
+      // ── !cancel in control channel ──
+      if (command === '!cancel') {
+        const cancelArg = args.find(a => a.includes('-') && a.match(/^[A-Z]+-/));
+        if (cancelArg) {
+          const targetIssue = cancelArg.replace('#', '').toUpperCase();
+          let found = false;
+          for (const [chId, work] of Object.entries(activeWorks)) {
+            if (work.issueId === targetIssue && work.server === server) {
+              work.status = 'completed';
+              await completeWork(client, chId, work.server, work.issueId);
+              await message.reply(`🛑 **Cancelled work for ${targetIssue}**`);
+              found = true;
+              break;
+            }
+          }
+          if (!found) await message.reply(`❌ No active work found for ${targetIssue}. Use \`!works\` to see active sessions.`);
+        } else {
+          await message.reply('Usage: `!cancel {issue-id}` (e.g., `!cancel PROD-001`)');
+        }
+        return;
+      }
 
       if (command === '!help' || (command === '@agent' && args.length === 1)) {
         await message.reply(
@@ -554,6 +598,18 @@ function setupMessageHandler(client) {
         }
 
         const issueIds = issueArgs.map(a => a.replace(/^#/, '').replace(/,/g, '').trim().toUpperCase()).filter(a => a.length > 0);
+
+        // ── CONCURRENT WORK LIMIT ──
+        const activeCount = Object.values(activeWorks).filter(w => w.status === 'active' || w.status === 'inactive').length;
+        if (activeCount >= CONFIG.maxConcurrentWorks) {
+          await message.reply(
+            `⏸️ **Concurrent work limit reached (${CONFIG.maxConcurrentWorks})**\n` +
+            `Complete or cancel existing work first with \`!cancel {issue-id}\`\n` +
+            `Use \`!works\` to see active sessions.`
+          );
+          return;
+        }
+        // ── END CONCURRENT LIMIT ──
 
         await message.reply(
           `📋 **Starting work on ${issueIds.length} issue(s)** ...\n` +
@@ -683,6 +739,13 @@ function setupMessageHandler(client) {
 
       const content = message.content;
       const isAgentMention = message.mentions.users.has(client.user.id);
+
+      // ── !done / !complete in work channels (no mention needed) ──
+      if (content.toLowerCase().startsWith('!done') || content.toLowerCase().startsWith('!complete')) {
+        await message.reply(`🔄 Completing work for **${workInfo.issueId}**...`);
+        await completeWork(client, message.channelId, workInfo.server, workInfo.issueId);
+        return;
+      }
 
       if (isAgentMention && (content.toLowerCase().includes('done') || content.toLowerCase().includes('complete'))) {
         await message.reply(`🔄 Completing work for **${workInfo.issueId}**...`);
