@@ -73,7 +73,10 @@ const AGENT_REGISTRY = {
   'integrateforge-ai-integration-specialist': { display: 'Integration Specialist (IntegrateForge AI)', type: 'integration', role: 'Integration Specialist', company: 'IntegrateForge AI', reportsTo: 'ceo' },
 
   // SaaSForge AI agents
-  'saasforge-ai-saas-specialist': { display: 'SaaS Specialist (SaaSForge AI)', type: 'saas', role: 'SaaS Specialist', company: 'SaaSForge AI', reportsTo: 'ceo' }
+  'saasforge-ai-saas-specialist': { display: 'SaaS Specialist (SaaSForge AI)', type: 'saas', role: 'SaaS Specialist', company: 'SaaSForge AI', reportsTo: 'ceo' },
+
+  // OpenClaw Discord Bot Agent
+  'integrateforge-ai-openclawbot': { display: 'OpenClaw Bot (IntegrateForge AI)', type: 'discord-bot-operator', role: 'Discord Bot Operator', company: 'IntegrateForge AI', reportsTo: 'integrateforge-ai-ziggyorchestrator' }
 };
 
 module.exports = { SERVER_MAP, AGENT_REGISTRY };

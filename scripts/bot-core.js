@@ -737,10 +737,10 @@ function setupMessageHandler(client) {
           case '!backup': {
             await message.reply('💾 **Backing up database...**');
             try {
-              const result = execSync(
-                'cp /root/docs-companies-agents-ops/schema/openclaw-app.db /root/docs-companies-agents-ops/schema/openclaw-app.db.backup.$(date +%Y%m%d-%H%M%S) 2>&1 && echo "Backup created"',
-                { timeout: 10000 }
-              ).toString().trim();
+      const result = execSync(
+        'cp /opt/docs-companies-agents-ops/schema/openclaw-app.db /opt/docs-companies-agents-ops/schema/openclaw-app.db.backup.$(date +%Y%m%d-%H%M%S) 2>&1 && echo "Backup created"',
+        { timeout: 10000 }
+      ).toString().trim();
               await message.reply(`✅ **Database backup complete:** ${result}`);
             } catch (err) {
               await message.reply(`❌ **Backup failed:** ${err.message}`);
@@ -761,8 +761,8 @@ function setupMessageHandler(client) {
     if (type === 'control') {
       const content = message.content;
       const isAgentMention = message.mentions.users.has(client.user.id);
-      const hasAgentRoleMention = message.mentions.roles.some(r => r.name.toLowerCase().includes('agent'));
-      const isCommand = content.startsWith('!') || hasAgentRoleMention;
+      const hasAnyRoleMention = message.mentions.roles.size > 0;
+      const isCommand = content.startsWith('!') || hasAnyRoleMention;
 
       if (!isAgentMention && !isCommand) return;
 
