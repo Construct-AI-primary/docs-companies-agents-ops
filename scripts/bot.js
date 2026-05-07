@@ -36,8 +36,8 @@ const client = new Client({
 client.once(Events.ClientReady, (c) => {
   console.log(`✅ OpenClaw Bot logged in as ${c.user.tag}`);
 
-  // Build the dynamic channel map
-  core.CHANNEL_MAP = buildChannelMap(c);
+  // Build the dynamic channel map (mutates CHANNEL_MAP in-place)
+  buildChannelMap(c);
 
   const agentChannels = Object.values(core.CHANNEL_MAP).filter(ch => ch.agentDisplay !== null).length;
   const byType = {};
