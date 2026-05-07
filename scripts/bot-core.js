@@ -1032,68 +1032,75 @@ function setupMessageHandler(client) {
         }
 
         for (const issueId of issueIds) {
-          const guildId = SERVER_MAP[server];
-          if (!guildId) {
-            await message.reply(`❌ Unknown server: ${server}`);
-            failCount++;
-            continue;
-          }
-
-          let agentSlug = null;
-          let agentDisplay = 'Unknown';
-          let agentRole = '';
-          let issueChannelEntry = Object.entries(ISSUE_CHANNELS).find(([id, info]) => info.purpose === issueId);
-          if (!issueChannelEntry) {
-            const prefix = issueId.split('-')[0];
-            issueChannelEntry = Object.entries(ISSUE_CHANNELS).find(([id, info]) => {
-              const purposePrefix = info.purpose.split('-')[0];
-              return purposePrefix === prefix && info.server === server;
-            });
-          }
-          if (issueChannelEntry) {
-            agentSlug = issueChannelEntry[1].agentSlug;
-            if (agentSlug && AGENT_REGISTRY[agentSlug]) {
-              agentDisplay = AGENT_REGISTRY[agentSlug].display;
-              agentRole = AGENT_REGISTRY[agentSlug].role;
+          try {
+            const guildId = SERVER_MAP[server];
+            if (!guildId) {
+              await message.reply(`❌ Unknown server: ${server}`);
+              failCount++;
+              continue;
             }
-          }
 
-          const workChannelId = sharedChannelId || await createWorkChannel(client, guildId, server, issueId);
-          if (!workChannelId) {
-            await message.reply(`❌ Failed to create work channel for ${issueId}. Check bot permissions.`);
+            let agentSlug = null;
+            let agentDisplay = 'Unknown';
+            let agentRole = '';
+            let issueChannelEntry = Object.entries(ISSUE_CHANNELS).find(([id, info]) => info.purpose === issueId);
+            if (!issueChannelEntry) {
+              const prefix = issueId.split('-')[0];
+              issueChannelEntry = Object.entries(ISSUE_CHANNELS).find(([id, info]) => {
+                const purposePrefix = info.purpose.split('-')[0];
+                return purposePrefix === prefix && info.server === server;
+              });
+            }
+            if (issueChannelEntry) {
+              agentSlug = issueChannelEntry[1].agentSlug;
+              if (agentSlug && AGENT_REGISTRY[agentSlug]) {
+                agentDisplay = AGENT_REGISTRY[agentSlug].display;
+                agentRole = AGENT_REGISTRY[agentSlug].role;
+              }
+            }
+
+            const workChannelId = sharedChannelId || await createWorkChannel(client, guildId, server, issueId);
+            if (!workChannelId) {
+              await message.reply(`❌ Failed to create work channel for ${issueId}. Check bot permissions.`);
+              failCount++;
+              continue;
+            }
+
+            createdChannels.push({ issueId, workChannelId });
+            scheduleRebuildChannelMap(client, 2000);
+
+            activeWorks[workChannelId] = {
+              issueId, server, status: 'active', subAgentCount: 0, startedAt: Date.now(),
+              agentSlug, agentDisplay, agentRole
+            };
+
+            const spawnResult = await spawnSubAgents(issueId, server, 5);
+            const spawnedCount = spawnResult.spawned || 0;
+            activeWorks[workChannelId].subAgentCount = spawnedCount;
+
+            await postToProjectLog(client, server,
+              `🔧 **Work Started: ${issueId}**\n` +
+              `📅 Started: <t:${Math.floor(Date.now() / 1000)}:R>\n` +
+              `🤖 Sub-agents: ${spawnedCount > 0 ? spawnedCount : 'pending gateway config'}\n` +
+              `🔗 Work channel: <#${workChannelId}>\n` +
+              `🤖 Agent: **${agentDisplay}** (${agentRole})`
+            );
+
+            const agentInfo = activeWorks[workChannelId];
+            await postToIssueChannel(client, server, issueId,
+              `🔧 **Work Started: ${issueId}**\n` +
+              `🤖 Agent: **${agentInfo.agentDisplay}** (${agentInfo.agentRole})\n` +
+              `📅 Started: <t:${Math.floor(Date.now() / 1000)}:R>\n` +
+              `🤖 Sub-agents: ${spawnedCount > 0 ? spawnedCount : 'pending gateway config'}\n` +
+              `🔗 Work channel: <#${workChannelId}>\n` +
+              `📝 Type \`!done\` in the work channel when complete.`
+            );
+          } catch (err) {
+            console.error(`[SETUP_MESSAGE_HANDLER] Failed for ${issueId}: ${err?.stack || err}`);
+            await message.reply(`❌ Failed to process ${issueId}: ${err.message}`);
             failCount++;
             continue;
           }
-
-          createdChannels.push({ issueId, workChannelId });
-          scheduleRebuildChannelMap(client, 2000);
-
-          activeWorks[workChannelId] = {
-            issueId, server, status: 'active', subAgentCount: 0, startedAt: Date.now(),
-            agentSlug, agentDisplay, agentRole
-          };
-
-          const spawnResult = await spawnSubAgents(issueId, server, 5);
-          const spawnedCount = spawnResult.spawned || 0;
-          activeWorks[workChannelId].subAgentCount = spawnedCount;
-
-          await postToProjectLog(client, server,
-            `🔧 **Work Started: ${issueId}**\n` +
-            `📅 Started: <t:${Math.floor(Date.now() / 1000)}:R>\n` +
-            `🤖 Sub-agents: ${spawnedCount > 0 ? spawnedCount : 'pending gateway config'}\n` +
-            `🔗 Work channel: <#${workChannelId}>\n` +
-            `🤖 Agent: **${agentDisplay}** (${agentRole})`
-          );
-
-          const agentInfo = activeWorks[workChannelId];
-          await postToIssueChannel(client, server, issueId,
-            `🔧 **Work Started: ${issueId}**\n` +
-            `🤖 Agent: **${agentInfo.agentDisplay}** (${agentInfo.agentRole})\n` +
-            `📅 Started: <t:${Math.floor(Date.now() / 1000)}:R>\n` +
-            `🤖 Sub-agents: ${spawnedCount > 0 ? spawnedCount : 'pending gateway config'}\n` +
-            `🔗 Work channel: <#${workChannelId}>\n` +
-            `📝 Type \`!done\` in the work channel when complete.`
-          );
 
           successCount++;
         }
