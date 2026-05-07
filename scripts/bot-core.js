@@ -55,28 +55,33 @@ function getReplyMode(type) {
 
 // ============================================================
 // DYNAMIC CHANNEL MAP — Built at startup from Discord guilds
+// FIX: Mutates the module-scoped CHANNEL_MAP in-place so that
+// all references (including destructured imports in bot.js)
+// stay connected. Do NOT reassign CHANNEL_MAP or return a new obj.
 // ============================================================
 let CHANNEL_MAP = {};
 
 function buildChannelMap(client) {
-  const map = {};
+  // Clear existing entries in-place
+  Object.keys(CHANNEL_MAP).forEach(key => delete CHANNEL_MAP[key]);
+
   const guilds = client.guilds.cache;
 
   for (const [id, info] of Object.entries(ISSUE_CHANNELS)) {
     let agentDisplay = info.agent;
     let agentRole = '';
     let agentSlug = info.agentSlug || null;
-    
+
     if (agentSlug && AGENT_REGISTRY[agentSlug]) {
       agentDisplay = AGENT_REGISTRY[agentSlug].display;
       agentRole = AGENT_REGISTRY[agentSlug].role;
     } else if (info.agent) {
       agentDisplay = info.agent;
     }
-    
-    map[id] = { 
-      ...info, 
-      type: 'issue', 
+
+    CHANNEL_MAP[id] = {
+      ...info,
+      type: 'issue',
       reply_mode: 'cross-ref',
       agentDisplay,
       agentRole,
@@ -101,7 +106,7 @@ function buildChannelMap(client) {
         case 'system': purpose = 'System channel'; break;
       }
 
-      map[channel.id] = {
+      CHANNEL_MAP[channel.id] = {
         server: serverName,
         name: name,
         agent: null,
@@ -113,15 +118,13 @@ function buildChannelMap(client) {
       };
     });
   });
-
-  return map;
 }
 
 let rebuildTimeout = null;
 function scheduleRebuildChannelMap(client, delayMs = 3000) {
   if (rebuildTimeout) clearTimeout(rebuildTimeout);
   rebuildTimeout = setTimeout(() => {
-    CHANNEL_MAP = buildChannelMap(client);
+    buildChannelMap(client);
     console.log(`🔄 Channel map rebuilt: ${Object.keys(CHANNEL_MAP).length} channels`);
     rebuildTimeout = null;
   }, delayMs);
@@ -263,7 +266,7 @@ async function createWorkChannel(client, guildId, serverName, issueId, customNam
         agentDetails = ` — Agent: ${agent.display} (${agent.role})`;
       }
     }
-    
+
     const result = await discordApiRequest(`/guilds/${guildId}/channels`, 'POST', {
       name: channelName,
       type: 0,
@@ -381,11 +384,11 @@ async function completeWork(client, workChannelId, serverName, issueId) {
 // ============================================================
 function setupMessageHandler(client) {
   console.log(`📨 [DEBUG] Setting up MessageCreate handler...`);
-  
+
   client.on(Events.MessageCreate, async (message) => {
     // DEBUG: Log ALL messages to see if handler is triggered
     console.log(`📨 [MSG] ${message.author.username} in #${message.channel?.name || message.channelId} (${message.channelId}): ${message.content.substring(0, 50)}`);
-    
+
     if (message.author.bot) {
       console.log(`📨 [MSG] Ignoring bot message`);
       return;
@@ -486,8 +489,8 @@ function setupMessageHandler(client) {
             let reply = '**All Agent Channels:**\n';
             for (const [id, info] of Object.entries(CHANNEL_MAP)) {
               if (info.agentDisplay) {
-                const agentInfo = info.agentSlug && AGENT_REGISTRY[info.agentSlug] 
-                  ? `**${info.agentDisplay}** (${info.agentRole})` 
+                const agentInfo = info.agentSlug && AGENT_REGISTRY[info.agentSlug]
+                  ? `**${info.agentDisplay}** (${info.agentRole})`
                   : info.agentDisplay;
                 reply += `  • **${info.server}/#${info.name}** → ${agentInfo} — ${info.purpose} [${info.type}]\n`;
               }
@@ -499,8 +502,8 @@ function setupMessageHandler(client) {
           case '!whoami': {
             const thisChannel = CHANNEL_MAP[message.channelId];
             if (thisChannel && thisChannel.agentDisplay) {
-              const agentInfo = thisChannel.agentSlug && AGENT_REGISTRY[thisChannel.agentSlug] 
-                ? `**${thisChannel.agentDisplay}** (${thisChannel.agentRole})` 
+              const agentInfo = thisChannel.agentSlug && AGENT_REGISTRY[thisChannel.agentSlug]
+                ? `**${thisChannel.agentDisplay}** (${thisChannel.agentRole})`
                 : thisChannel.agentDisplay;
               await message.reply(`This channel is assigned to ${agentInfo} for **${thisChannel.purpose}**.`);
             } else {
@@ -910,8 +913,8 @@ function setupMessageHandler(client) {
         let reply = '**All Agent Channels:**\n';
         for (const [id, info] of Object.entries(CHANNEL_MAP)) {
           if (info.agentDisplay) {
-            const agentInfo = info.agentSlug && AGENT_REGISTRY[info.agentSlug] 
-              ? `**${info.agentDisplay}** (${info.agentRole})` 
+            const agentInfo = info.agentSlug && AGENT_REGISTRY[info.agentSlug]
+              ? `**${info.agentDisplay}** (${info.agentRole})`
               : info.agentDisplay;
             reply += `  • **${info.server}/#${info.name}** → ${agentInfo} — ${info.purpose} [${info.type}]\n`;
           }
