@@ -405,7 +405,7 @@ function setupMessageHandler(client) {
         return;
       }
 
-    const channelId = message.channel?.id || message.channelId;
+      const channelId = message.channel?.id || message.channelId;
     const channelInfo = CHANNEL_MAP[channelId];
     if (!channelInfo) {
       console.log(`📨 [MSG] No channelInfo for ${channelId} — CHANNEL_MAP has ${Object.keys(CHANNEL_MAP).length} entries`);
