@@ -730,15 +730,48 @@ function setupMessageHandler(client) {
           }
 
           case '!deploy': {
-            await message.reply('🚀 **Deploying...**\n`git pull` + `npm install` + `pm2 restart`');
+            await message.reply('🚀 **Deploying...**\n`git pull` + `copy scripts` + `pm2 restart`');
             try {
-              const pullResult = execSync('cd /root/docs-companies-agents-ops && git pull origin main 2>&1', { timeout: 30000 }).toString().trim();
-              const installResult = execSync('cd /root/docs-companies-agents-ops && npm install 2>&1', { timeout: 60000 }).toString().trim();
-              const restartResult = execSync('pm2 restart bot 2>&1', { timeout: 10000 }).toString().trim();
+              const OPS_DIR = '/root/docs-companies-agents-ops';
+              const BOT_DIR = '/opt/openclaw-discord-bot';
+
+              // Clone ops repo if not present
+              let pullResult;
+              if (require('fs').existsSync(`${OPS_DIR}/.git`)) {
+                pullResult = execSync(`cd ${OPS_DIR} && git pull origin main 2>&1`, { timeout: 30000 }).toString().trim();
+              } else {
+                require('fs').mkdirSync(OPS_DIR, { recursive: true });
+                pullResult = execSync(
+                  `git clone https://github.com/Construct-AI-primary/docs-companies-agents-ops.git ${OPS_DIR} 2>&1`,
+                  { timeout: 60000 }
+                ).toString().trim();
+              }
+
+              // Copy updated scripts to bot directory
+              execSync(`cp -f ${OPS_DIR}/scripts/task-worker.js ${BOT_DIR}/task-worker.js 2>&1`, { timeout: 5000 });
+              execSync(`cp -f ${OPS_DIR}/scripts/bot-core.js ${BOT_DIR}/bot-core.js 2>&1`, { timeout: 5000 });
+              execSync(`cp -f ${OPS_DIR}/scripts/bot.js ${BOT_DIR}/bot.js 2>&1`, { timeout: 5000 });
+              execSync(`cp -f ${OPS_DIR}/scripts/bot-channels.js ${BOT_DIR}/bot-channels.js 2>&1`, { timeout: 5000 });
+              execSync(`cp -f ${OPS_DIR}/scripts/bot-registry.js ${BOT_DIR}/bot-registry.js 2>&1`, { timeout: 5000 });
+
+              // Install dependencies
+              execSync(`cd ${BOT_DIR} && npm install 2>&1`, { timeout: 60000 });
+
+              // Restart bot and worker
+              execSync('pm2 restart bot 2>&1', { timeout: 10000 });
+              let workerResult = '';
+              try {
+                execSync('pm2 restart worker 2>&1', { timeout: 10000 });
+                workerResult = ' + worker';
+              } catch {
+                execSync('pm2 start /opt/openclaw-discord-bot/task-worker.js --name worker 2>&1', { timeout: 10000 });
+                workerResult = ' + worker (new)';
+              }
+
               await message.reply(
                 `✅ **Deploy Complete**\n` +
-                `\`\`\`\n${pullResult.split('\n').slice(-3).join('\n')}\n\`\`\`\n` +
-                `🔄 Bot restarted.`
+                `\`\`\`\n${pullResult.split('\n').slice(-2).join('\n')}\n\`\`\`\n` +
+                `🔄 Bot${workerResult} restarted.`
               );
             } catch (err) {
               await message.reply(`❌ **Deploy failed:** ${err.message}`);
