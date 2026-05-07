@@ -1,6 +1,16 @@
 // ============================================================
 // BOT CORE — Logic module (config, API, helpers, message handler)
 // ============================================================
+// ============================================================
+// GLOBAL ERROR HANDLERS — prevent Node.js crash on thrown rejections
+// ============================================================
+process.on('unhandledRejection', (reason, promise) => {
+  console.error(`[FATAL] Unhandled Rejection at: ${promise}\n  Reason: ${reason?.stack || reason}`);
+});
+process.on('uncaughtException', (err) => {
+  console.error(`[FATAL] Uncaught Exception: ${err?.stack || err}`);
+});
+
 const { Client, Events, ChannelType } = require('discord.js');
 const https = require('https');
 const http = require('http');
