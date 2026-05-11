@@ -192,7 +192,7 @@ async function ensureConstructAiRepo() {
 
 async function createFeatureBranch(issueId, repoPath) {
   return withGitLock(async () => {
-    const branchName = `feat/${issueId.toLowerCase()}`;
+    const branchName = `feat/${issueId}`;
 
     // Check if branch exists locally or remotely
     try {
@@ -880,7 +880,7 @@ function findIssueSpec(issueId) {
 
     try {
       const result = execSync(
-        `find "${basePath}" -name "*${issueId.toLowerCase()}*" -type f 2>/dev/null | head -1`,
+        `find "${basePath}" -iname "*${issueId.toLowerCase()}*" -type f 2>/dev/null | head -1`,
         { encoding: 'utf-8', timeout: 10000 }
       ).trim();
       if (result) return result;
